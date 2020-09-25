@@ -1,0 +1,11 @@
+En alu_control hay que añadir instrucciones
+
+Instrucciones a añadir
+	ADDI --
+	SLTI ¿¿?? Esta SLT pero no SLTI
+	LUI
+	LW
+	SW
+	J
+	BEQ
+	NOP
