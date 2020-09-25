@@ -1,8 +1,9 @@
 --------------------------------------------------------------------------------
 -- Bloque de control para la ALU. Arq0 2019-2020.
 --
--- (INCLUIR AQUI LA INFORMACION SOBRE LOS AUTORES, Quitar este mensaje)
---
+-- Kevin de la Coba Malam  (kevin.coba@estudiante.uam.es)
+-- Miguel Herrera Martínez (miguel.herreramartinez@estudiante.uam.es)
+-- Group 1391, pair 2
 --------------------------------------------------------------------------------
 
 library ieee;

@@ -1,8 +1,9 @@
 --------------------------------------------------------------------------------
 -- Unidad de control principal del micro. Arq0 2020-2021
 --
--- (INCLUIR AQUI LA INFORMACION SOBRE LOS AUTORES)
---
+-- Kevin de la Coba Malam  (kevin.coba@estudiante.uam.es)
+-- Miguel Herrera Martínez (miguel.herreramartinez@estudiante.uam.es)
+-- Group 1391, pair 2 
 --------------------------------------------------------------------------------
 
 library ieee;

@@ -1,8 +1,9 @@
 --------------------------------------------------------------------------------
 -- Procesador MIPS con pipeline curso Arquitectura 2020-2021
 --
--- (INCLUIR AQUI LA INFORMACION SOBRE LOS AUTORES)
---
+-- Kevin de la Coba Malam   (kevin.coba@estudiante.uam.es)
+-- Miguel Herrera Martínez  (miguel.herreramartinez@estudiante.uam.es)
+-- Group 1391, pair 2
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -121,8 +122,9 @@ begin
 
   PC_plus4    <= PC_reg + 4;
   IAddr       <= PC_reg;
-  Instruction <= IDataIn;
-  Instruction <= x"04000000" when IDataIn = x"00000000"; -- nop
+
+  Instruction <= x"04000000" when IDataIn = x"00000000" else
+                IDataIn; -- nop
   
   RegsMIPS : reg_bank
   port map (
