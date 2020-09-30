@@ -16,6 +16,7 @@ entity control_unit is
       OpCode  : in  std_logic_vector (5 downto 0);
       -- Seniales para el PC
       Branch : out  std_logic; -- 1 = Ejecutandose instruccion branch
+      Jump : out std_logic;   -- 
       -- Seniales relativas a la memoria
       MemToReg : out  std_logic; -- 1 = Escribir en registro la salida de la mem.
       MemWrite : out  std_logic; -- Escribir la memoria
@@ -47,26 +48,26 @@ begin
 --   OPCode <= Instr(31 downto 26);
 
 Branch   <= '1' when opCode = OP_BEQ else 
-            '0'; -- addi, R-Type, slti, nop
+            '0'; -- addi, R-Type, slti, nop, jump
 
 ALUSrc   <= '0' when opCode = OP_RTYPE else -- R-type
             '0' when opCode = OP_BEQ   else -- beq
-            '1'; -- lw, sw, addi
+            '1'; -- lw, sw, addi, jump
 
 RegDst   <= '1' when opCode = OP_RTYPE else -- R-type
-            '0'; -- lw, sw, beq, j, I-type, addi, slti
+            '0'; -- lw, sw, beq, j, I-type, addi, slti, jump
 
 RegWrite <= '0' when opCode = OP_SW  else -- sw
             '0' when opCode = OP_BEQ else -- bew
             '0' when opCode = OP_NOP else -- nop
             '0' when opCode = OP_JUMP else -- j
-            '1'; -- R-type, lw, I-type, jal, addi, slti
+            '1'; -- R-type, lw, I-type, jal, addi, slti, jump
 
 MemRead  <= '1' when opCode = OP_LW else -- lw
-            '0'; -- addi, R-Type, slti
+            '0'; -- addi, R-Type, slti, jump
 
 MemWrite <= '1' when opCode = OP_SW else -- sw
-            '0'; -- addi, R-Type, slti, NOP
+            '0'; -- addi, R-Type, slti, NOP, jump
 
 MemToReg <= '1' when opCode = OP_LW else -- lw
             '0'; -- R-type, sw, beq, j, jal, I-type, addi, slti, NOP
