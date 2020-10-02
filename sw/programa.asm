@@ -85,6 +85,3 @@ nosalto:
   nop
   nop
   nop
-  
-  
-
