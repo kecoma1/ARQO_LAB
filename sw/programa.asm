@@ -45,8 +45,8 @@ main:
   lw $t4, 0($zero)  # (r12)t4 = 1
   slt $t4, $t2, $t1 # (r12)t4 = 0
   slt $t4, $t1, $t2 # (r12)t4 = 1
-  slti $t1, $t1, 10 # (r9)t1 = 1
-  slti $t1, $t1, 0  # (r9)t1 = 0
+  slti $t4, $t4, 10 # (r12)t4 = 1
+  slti $t4, $t4, 0  # (r12)t4 = 0
   
   # carga datos inmediatos en la parte alta de registros
   lw $t1, 0($zero)  # lw $r9,  0($r0)  -> r9  = 1
