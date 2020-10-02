@@ -30,54 +30,51 @@ main:
   sw $t6, 44($zero) # sw $r14, 44($r0) -> data[44] =  32
   
   # carga num6 a num11 en los registros 9 a 14, deberia ser lo mismo
-  addi $t1, $t2, 100     # t1 = 2 + 100 = 102
-  addi $t2, $t1, 50      # t2 = 102 + 50 = 152
-  addi $t3, $t3, 6       # t3 = 4 + 6 = 10
-  addi $t6, $t6, 32      # t6 = 32 + 32 = 64
+  addi $t1, $t2, 100     # (r9)t1 = 2 + 100 = 102
+  sub $t1, $t1, $t1      # (r9)t1 = 0
 
-  lw $t1, 0($zero)       # t1 = 1
-  lw $t2, 0($zero)       # t2 = 1
+  lw $t1, 0($zero)       # (r9)t1 = 1
+  lw $t2, 0($zero)       # (r10)t2 = 1
   
   # realiza operaciones
-  add $t7, $t1, $t2 # t7 = 102 + 152 = 254
-  add $s0, $t3, $t4 # s0 = 10 + 8 = 18
-  sub $t1, $t1, $t1 # t1 = 0
-  sub $t2, $t2, $t2 # t2 = 0
-  addi $t2, $t2, 1  # t2 = 1 
-  xor $s1, $t1, $t2 # s1 = 1
-  and $s3, $t1, $t2 # s3 = 0
-  addi $t1, $t1, 1  # t1 = 1
-  and $s4, $t1, $t2 # s4 = 1
-  or $s5, $t1, $t2  # s5 = 1
-  sub $t1, $t1, $t1 # t1 = 0
-  or $s1, $t2, $t2  # s1 = 1
-  or $s6, $s3, $t1  # s6 = 0
-  slt $s7, $t1, $t2 # s7 = 1
-  slti $s0, $t7, 1  # s0 = 0
+  add $t3, $t1, $t2 # (r11)t3 = 2
+  xor $t1, $t1, $t2 # (r9)t1 = 0 
+  and $t3, $t1, $t2 # (r11)t3 = 0
+  or $t1, $t1, $t2  # (r9)t1 = 1
+  sub $t1, $t1, $t1 # (r9)t1 = 0
+  lw $t4, 0($zero)  # (r12)t4 = 1
+  slt $t4, $t2, $t1 # (r12)t4 = 0
+  slt $t4, $t1, $t2 # (r12)t4 = 1
+  slti $t1, $t1, 10 # (r9)t1 = 1
+  slti $t1, $t1, 0  # (r9)t1 = 0
   
   # carga datos inmediatos en la parte alta de registros
   lw $t1, 0($zero)  # lw $r9,  0($r0)  -> r9  = 1
   lw $t2, 4($zero)  # lw $r10, 4($r0)  -> r10 = 2
   lui $t1, 1 # lui $r9, 1  -> queda a 65536  (0x00010000)
   lui $t2, 2 # lui $r10, 2 -> queda a 131072 (0x00020000)
-  
-  nop
-  nop
-  nop
-  nop
-  beq $s1, $s2, salto # beq $r17, $r18, salto -> como $r17=$r18=3, salta
+
+  beq $t1, $t2, salto # no salta
+  lw $t1, 0($zero)  # lw $r9,  0($r0)  -> r9  = 1
+  lw $t2, 0($zero)  # lw $r10, 4($r0)  -> r10 = 1
+  beq $t1, $t2, salto # no salta
   nop
   nop
   lw $t1, 44($zero)  # t1 = 32 
 salto:
+  nop
+  nop
   sub $t1, $t1, $t1     # t1 = 0
-  beq $t1, $t2, nosalto # beq $r19, $r20, nosalto -> este branch NO debe ejecutarse
+  lw $t1, 16($zero)  # lw $r9,  0($r0)  -> r9  = 16
+  j final
+prueba:
+  lw $t1, 20($zero) # no debe ejecutarse t1 = 16
 final:
-  beq $zero, $zero, final # -> bucle infinito, volvera aqui tras varios NOPs.
   nop
   nop
   nop
   nop
+  j final
 nosalto:
   lui $t2, 0xFFFF  # lui $r10, 0xFFFF -> no debe ejecutarse
   beq $zero, $zero, final
