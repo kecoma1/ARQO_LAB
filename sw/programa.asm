@@ -54,13 +54,13 @@ main:
   lui $t1, 1 # lui $r9, 1  -> queda a 65536  (0x00010000)
   lui $t2, 2 # lui $r10, 2 -> queda a 131072 (0x00020000)
 
-  beq $t1, $t2, salto # no salta
+  beq $t1, $t2, salto # doesn't execute
   lw $t1, 0($zero)  # lw $r9,  0($r0)  -> r9  = 1
   lw $t2, 0($zero)  # lw $r10, 4($r0)  -> r10 = 1
-  beq $t1, $t2, salto # no salta
+  beq $t1, $t2, salto # Jumps
   nop
   nop
-  lw $t1, 44($zero)  # t1 = 32 
+  lw $t1, 44($zero)  # t1 = 32  (doesn't execute)
 salto:
   nop
   nop
@@ -68,7 +68,7 @@ salto:
   lw $t1, 16($zero)  # lw $r9,  0($r0)  -> r9  = 16
   j final
 prueba:
-  lw $t1, 20($zero) # no debe ejecutarse t1 = 16
+  lw $t1, 20($zero) # doesn't execute t1 = 16
 final:
   nop
   nop
