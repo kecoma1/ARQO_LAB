@@ -108,9 +108,58 @@ architecture rtl of processor is
   signal desition_Branch : std_logic_vector(31 downto 0);
   signal Alu_Res        : std_logic_vector(31 downto 0);
 
+  -- These are the signals for the pipeline processor registers
+
+  -- Instruction fetch and decode register
+  signal PC_plus4_ID : std_logic_vector(31 downto 0);
+  signal InstructionID : std_logic_vector(31 downto 0);
+  signal enable_IF_ID : std_logic;
+  
+  -- Instruction decode and execution register
+  signal Ctrl_Jump_EX : std_logic;
+  signal Ctrl_Branch_EX : std_logic;
+  signal Ctrl_MemToReg_EX : std_logic;
+  signal Ctrl_MemWrite_EX : std_logic;
+  signal Ctrl_MemRead_EX : std_logic;
+  signal Ctrl_ALUSrc_EX : std_logic;
+  signal Ctrl_ALUOP_EX : std_logic_vector(2 downto 0);
+  signal Ctrl_RegWrite_EX : std_logic;
+  signal Ctrl_RegDest_EX : std_logic;
+  signal PC_plus4_EX  : std_logic_vector(31 downto 0);
+  signal reg_RS_EX : std_logic_vector(31 downto 0);
+  signal reg_RT_EX : std_logic_vector(31 downto 0);
+  signal R15_0EX : std_logic_vector(31 downto 0);
+  signal R20_16 : std_logic_vector(4 downto 0);
+  signal R15_11 : std_logic_vector(4 downto 0);
+  signal R15_0Extended : std_logic_vector(31 downto 0);
+  signal enable_ID_EX : std_logic;
+
+  -- Execution and memory register
+  signal Ctrl_Branch_MEM  : std_logic;
+  signal Ctrl_MemToReg_MEM : std_logic;
+  signal Ctrl_MemWrite_MEM : std_logic;
+  signal Ctrl_RegWrite_MEM : std_logic;
+  signal Ctrl_RegDest_MEM : std_logic;
+  signal Ctrl_MemRead_MEM : std_logic;
+  signal Addr_Branch_MEM : std_logic_vector(31 downto 0);
+  signal ALU_Igual_MEM : std_logic;
+  signal Alu_res_MEM : std_logic_vector(31 downto 0);
+  signal reg_RD_MEM : std_logic_vector(4 downto 0);
+  signal reg_RT_MEM : std_logic_vector(31 downto 0);
+  signal enable_EX_MEM : std_logic;
+
+  -- Memory and write back register
+  signal Ctrl_RegWrite_WB : std_logic;
+  signal Ctrl_MemToReg_WB : std_logic;
+  signal dataIn_Mem_WB : std_logic_vector(31 downto 0);
+  signal Alu_res_WB : std_logic_vector(31 downto 0);
+  signal reg_RD_WB : std_logic_vector(4 downto 0);
+  signal enable_MEM_WB : std_logic;
+
 begin
 
-  PC_next <= Addr_Jump_dest;
+  PC_next <= Addr_Branch_MEM when Regs_eq_branch = '1' else
+             PC_plus4;
 
   PC_reg_proc: process(Clk, Reset)
   begin
@@ -126,23 +175,35 @@ begin
 
   Instruction <= x"04000000" when IDataIn = x"00000000" else
                 IDataIn; -- nop
-  
+
+  Fetch_Decode: process(Clk, Reset, enable_IF_ID, PC_plus4, Instruction)
+  begin
+    if reset = '1' then
+      PC_plus4_ID <= (others => '0');
+      InstructionID <= (others => '0');
+    elsif rising_edge(Clk) and enable_IF_ID = '1' then
+      PC_plus4_ID <= PC_plus4;
+      InstructionID <= Instruction;
+    end if;
+  end process;
+  enable_IF_ID <= '1'; 
+
   RegsMIPS : reg_bank
   port map (
     Clk   => Clk,
     Reset => Reset,
-    A1    => Instruction(25 downto 21),
+    A1    => InstructionID(25 downto 21),
     Rd1   => reg_RS,
-    A2    => Instruction(20 downto 16),
+    A2    => InstructionID(20 downto 16),
     Rd2   => reg_RT,
-    A3    => reg_RD,
+    A3    => reg_RD_WB,
     Wd3   => reg_RD_data,
-    We3   => Ctrl_RegWrite
+    We3   => Ctrl_RegWrite_WB
   );
 
   UnidadControl : control_unit
   port map(
-    OpCode   => Instruction(31 downto 26),
+    OpCode   => InstructionID(31 downto 26),
     -- Señales para el PC
     Jump   => Ctrl_Jump,
     Branch   => Ctrl_Branch,
@@ -158,46 +219,139 @@ begin
     RegDst   => Ctrl_RegDest
   );
 
-  Inm_ext        <= x"FFFF" & Instruction(15 downto 0) when Instruction(15)='1' else
-                    x"0000" & Instruction(15 downto 0);
-  Addr_Jump      <= PC_plus4(31 downto 28) & Instruction(25 downto 0) & "00";
-  Addr_Branch    <= PC_plus4 + ( Inm_ext(29 downto 0) & "00");
+  R15_0Extended <= x"FFFF" & InstructionID(15 downto 0) when InstructionID(15)='1' else
+                  x"0000" & InstructionID(15 downto 0);
 
-  Regs_eq_branch <= '1' when (ALU_Igual = '1' and Ctrl_Branch = '1') else
-                    '0';
-  desition_Branch <= Addr_Branch when Regs_eq_branch = '1' else
-                    PC_plus4;
+  Decode_Execute: process(Clk, Reset, enable_ID_EX, Ctrl_Jump, Ctrl_Branch, Ctrl_MemToReg,
+                          Ctrl_MemWrite, Ctrl_MemRead, Ctrl_ALUSrc, Ctrl_ALUOP, Ctrl_RegWrite,
+                          Ctrl_RegDest, PC_plus4, Reg_RS, reg_RT, R15_0Extended, InstructionID)
+  begin
+    if reset = '1' then
+      Ctrl_Jump_EX <= '0';
+      Ctrl_Branch_EX <= '0';
+      Ctrl_MemToReg_EX <= '0';
+      Ctrl_MemWrite_EX <= '0';
+      Ctrl_MemRead_EX <= '0';
+      Ctrl_ALUSrc_EX <= '0';
+      Ctrl_ALUOP_EX <= (others => '0');
+      Ctrl_RegWrite_EX <= '0';
+      Ctrl_RegDest_EX <= '0';
+      PC_plus4_EX <= (others => '0');
+      reg_RS_EX <= (others => '0');
+      reg_RT_EX <= (others => '0');
+      R15_0EX <= (others => '0');
+      R20_16 <= (others => '0');
+      R15_11 <= (others => '0');
+    elsif rising_edge(Clk) and enable_ID_EX = '1' then
+      Ctrl_Jump_EX <= Ctrl_Jump;
+      Ctrl_Branch_EX <= Ctrl_Branch;
+      Ctrl_MemToReg_EX <= Ctrl_MemToReg;
+      Ctrl_MemWrite_EX <= Ctrl_MemWrite;
+      Ctrl_MemRead_EX <= Ctrl_MemRead;
+      Ctrl_ALUSrc_EX <= Ctrl_ALUSrc;
+      Ctrl_ALUOP_EX <= Ctrl_ALUOP;
+      Ctrl_RegWrite_EX <= Ctrl_RegWrite;
+      Ctrl_RegDest_EX <= Ctrl_RegDest;
+      PC_plus4_EX <= PC_plus4;
+      reg_RS_EX <= Reg_RS;
+      reg_RT_EX <= reg_RT;
+      R15_0EX <= R15_0Extended;
+      R20_16 <= InstructionID(20 downto 16);
+      R15_11 <= InstructionID(15 downto 11);
+    end if;
+  end process;
+  enable_ID_EX <= '1';
   
-  Addr_Jump_dest <= Addr_Jump when Ctrl_Jump='1' else
-                    desition_Branch;
+  --Addr_Jump      <= PC_plus4_EX(31 downto 28) & R15_0EX(25 downto 0) & "00";
+  Addr_Branch    <= PC_plus4_EX + ( R15_0EX(29 downto 0) & "00");
+  Alu_Op2        <= reg_RT_EX when Ctrl_ALUSrc_EX = '0' else R15_0EX;
 
   Alu_control_i: alu_control
   port map(
     -- Entradas:
-    ALUOp  => Ctrl_ALUOP, -- Codigo de control desde la unidad de control
-    Funct  => instruction (5 downto 0), -- Campo "funct" de la instruccion
+    ALUOp  => Ctrl_ALUOP_EX, -- Codigo de control desde la unidad de control
+    Funct  => R15_0EX(5 downto 0), -- Campo "funct" de la instruccion
     -- Salida de control para la ALU:
     ALUControl => AluControl -- Define operacion a ejecutar por la ALU
   );
-
+    
   Alu_MIPS : alu
-  port map (
-    OpA     => reg_RS,
+    port map (
+    OpA     => reg_RS_EX,
     OpB     => Alu_Op2,
     Control => AluControl,
     Result  => Alu_Res,
     Zflag   => ALU_Igual
   );
+  
+  reg_RD     <= R20_16 when Ctrl_RegDest_EX = '0' else R15_11;
 
-  Alu_Op2    <= reg_RT when Ctrl_ALUSrc = '0' else Inm_ext;
-  reg_RD     <= Instruction(20 downto 16) when Ctrl_RegDest = '0' else Instruction(15 downto 11);
+  Execute_Mem: process(Clk, Reset, enable_EX_MEM, Ctrl_Branch_EX, Ctrl_MemToReg_EX, 
+                       Ctrl_MemWrite_EX, Ctrl_RegWrite_EX, Ctrl_RegDest_EX, Ctrl_MemRead_EX, 
+                       Addr_Branch, ALU_Igual, Alu_Res, reg_RT_EX, reg_RD)
+  begin
+    if reset = '1' then
+      --Ctrl_Jump_MEM <= '0';
+      Ctrl_Branch_MEM <= '0';
+      Ctrl_MemToReg_MEM <= '0';
+      Ctrl_MemWrite_MEM <= '0';
+      Ctrl_RegWrite_MEM <= '0';
+      Ctrl_RegDest_MEM <= '0';
+      Ctrl_MemRead_MEM <= '0';
+      Addr_Branch_MEM <= (others => '0');
+      ALU_Igual_MEM <= '0';
+      Alu_res_MEM <= (others => '0');
+      reg_RD_MEM <= (others => '0');
+      reg_RT_MEM <= (others => '0');
+    elsif rising_edge(Clk) and enable_EX_MEM = '1' then
+      Ctrl_Branch_MEM <= Ctrl_Branch_EX;
+      Ctrl_MemToReg_MEM <= Ctrl_MemToReg_EX;
+      Ctrl_MemWrite_MEM <= Ctrl_MemWrite_EX;
+      Ctrl_RegWrite_MEM <= Ctrl_RegWrite_EX;
+      Ctrl_RegDest_MEM <= Ctrl_RegDest_EX;
+      Ctrl_MemRead_MEM <= Ctrl_MemRead_EX;
+      Addr_Branch_MEM <= Addr_Branch;
+      ALU_Igual_MEM <= ALU_Igual;
+      Alu_res_MEM <= Alu_Res;
+      reg_RT_MEM <= reg_RT_EX;
+      reg_RD_MEM <= reg_RD;
+    end if;
+  end process;
+  enable_EX_MEM <= '1';
 
-  DAddr      <= Alu_Res;
-  DDataOut   <= reg_RT;
-  DWrEn      <= Ctrl_MemWrite;
-  dRdEn      <= Ctrl_MemRead;
+  Regs_eq_branch <= '1' when (ALU_Igual = '1' and Ctrl_Branch = '1') else
+                    '0';
+  
+  --desition_Branch <= Addr_Branch when Regs_eq_branch = '1' else
+                    --PC_plus4;
+  
+  --Addr_Jump_dest <= Addr_Jump when Ctrl_Jump='1' else
+                    --desition_Branch;
+                    
+  DAddr      <= Alu_res_MEM;
+  DDataOut   <= reg_RT_MEM;
+  DWrEn      <= Ctrl_MemWrite_MEM;
+  dRdEn      <= Ctrl_MemRead_MEM;
   dataIn_Mem <= DDataIn;
 
-  reg_RD_data <= dataIn_Mem when Ctrl_MemToReg = '1' else Alu_Res;
+  Mem_Wb: process(Clk, Reset, enable_MEM_WB, Ctrl_RegWrite_MEM, Ctrl_MemToReg_MEM, dataIn_Mem, Alu_res_MEM, reg_RD_MEM)
+  begin
+    if reset = '1' then
+      Ctrl_RegWrite_WB <= '0';
+      Ctrl_MemToReg_WB <= '0';
+      dataIn_Mem_WB <= (others => '0');
+      Alu_res_WB <= (others => '0');
+      reg_RD_WB <= (others => '0');
+    elsif rising_edge(Clk) and enable_MEM_WB = '1' then
+      Ctrl_RegWrite_WB <= Ctrl_RegWrite_MEM;
+      Ctrl_MemToReg_WB <= Ctrl_MemToReg_MEM;
+      dataIn_Mem_WB <= dataIn_Mem;
+      Alu_res_WB <= Alu_res_MEM;
+      reg_RD_WB <= reg_RD_MEM;
+    end if;
+  end process;
+  enable_MEM_WB <= '1';  
+
+  reg_RD_data <= dataIn_Mem_WB when Ctrl_MemToReg_WB = '1' else Alu_res_WB;
 
 end architecture;
