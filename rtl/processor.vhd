@@ -105,12 +105,12 @@ architecture rtl of processor is
 
   signal Addr_Jump      : std_logic_vector(31 downto 0);
   signal Addr_Jump_dest : std_logic_vector(31 downto 0);
-  signal desition_Jump     : std_logic;
+  signal desition_Branch : std_logic_vector(31 downto 0);
   signal Alu_Res        : std_logic_vector(31 downto 0);
 
 begin
 
-  PC_next <= Addr_Jump_dest when desition_Jump = '1' else PC_plus4;
+  PC_next <= Addr_Jump_dest;
 
   PC_reg_proc: process(Clk, Reset)
   begin
@@ -163,13 +163,13 @@ begin
   Addr_Jump      <= PC_plus4(31 downto 28) & Instruction(25 downto 0) & "00";
   Addr_Branch    <= PC_plus4 + ( Inm_ext(29 downto 0) & "00");
 
-  --Ctrl_Jump      <= '0'; --nunca salto incondicional
-
-  Regs_eq_branch <= '1' when (reg_RS = reg_RT) else '0';
-  desition_Jump  <= Ctrl_Jump or (Ctrl_Branch and Regs_eq_branch);
-  Addr_Jump_dest <= Addr_Jump   when Ctrl_Jump='1' else
-                    Addr_Branch when Ctrl_Branch='1' else
-                    (others =>'0');
+  Regs_eq_branch <= '1' when (ALU_Igual = '1' and Ctrl_Branch = '1') else
+                    '0';
+  desition_Branch <= Addr_Branch when Regs_eq_branch = '1' else
+                    PC_plus4;
+  
+  Addr_Jump_dest <= Addr_Jump when Ctrl_Jump='1' else
+                    desition_Branch;
 
   Alu_control_i: alu_control
   port map(
@@ -186,7 +186,7 @@ begin
     OpB     => Alu_Op2,
     Control => AluControl,
     Result  => Alu_Res,
-    Zflag   => ALU_IGUAL
+    Zflag   => ALU_Igual
   );
 
   Alu_Op2    <= reg_RT when Ctrl_ALUSrc = '0' else Inm_ext;

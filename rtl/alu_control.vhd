@@ -33,12 +33,14 @@ architecture rtl of alu_control is
   constant ALU_SLT  : t_aluControl := "1010";
   constant ALU_SLTI : t_aluControl := "1010";
   constant ALU_S16  : t_aluControl := "1101";
+  constant ALU_SUBB : t_aluControl := "0001"; -- Sub for the branch
 
 begin
 
   AluControl <= ALU_ADD when AluOp = "000" else -- lw o sw, que hace una suma
                 ALU_S16 when AluOp = "011" else -- lui
                 ALU_SLTI when AluOp = "100" else -- slti
+                ALU_SUBB when AluOp = "001" else -- beq
                 ALU_ADD when AluOp = "010" and Funct = "100000" else -- add
                 ALU_SUB when AluOp = "010" and Funct = "100010" else -- sub
                 ALU_AND when AluOp = "010" and Funct = "100100" else -- and
