@@ -30,7 +30,7 @@ main:
   sw $t6, 44($zero) # sw $r14, 44($r0) -> data[44] =  32
   
   # carga num6 a num11 en los registros 9 a 14, deberia ser lo mismo
-  addi $t1, $t2, 100     # (r9)t1 = 2 + 100 = 102
+  addi $t1, $t2, 100     # (r9)t1 = 102
   sub $t2, $t1, $t1      # (r9)t2 = 0
   nop
   nop
@@ -41,7 +41,12 @@ main:
   lw $t2, 0($zero)       # (r10)t2 = 1
   
   # realiza operaciones
-  add $t3, $t1, $t2 # (r11)t3 = 2
+  nop
+  nop
+  nop
+  nop
+  nop
+  add $t3, $t1, $t2 # (r11)t3 = 1 (data hazard)
   xor $t4, $t1, $t2 # (r12)t4 = 0 
   and $t5, $t1, $t2 # (r13)t5 = 1
   or $t6, $t1, $t2  # (r14)t1 = 1
@@ -49,6 +54,11 @@ main:
   lw $t3, 0($zero)  # (r11)t3 = 1
   slt $t4, $t2, $t1 # (r12)t4 = 0
   slt $t5, $t1, $t2 # (r13)t5 = 1
+  nop
+  nop
+  nop
+  nop
+  nop
   slti $t6, $t4, 10 # (r14)t6 = 1
   slti $t7, $t4, 0  # (r15)t7 = 0
   
@@ -57,6 +67,8 @@ main:
   lw $t2, 4($zero)  # lw $r10, 4($r0)  -> r10 = 2
   lui $t3, 1 # lui $r11, 1  -> queda a 65536  (0x00010000)
   lui $t6, 2 # lui $r14, 1 -> queda a 65536 (0x00010000)
+  nop
+  nop
   nop
   nop
   nop
