@@ -135,6 +135,7 @@ architecture rtl of processor is
   signal enable_ID_EX : std_logic;
 
   -- Execution and memory register
+  signal Ctrl_Jump_MEM : std_logic;
   signal Ctrl_Branch_MEM  : std_logic;
   signal Ctrl_MemToReg_MEM : std_logic;
   signal Ctrl_MemWrite_MEM : std_logic;
@@ -158,8 +159,11 @@ architecture rtl of processor is
 
 begin
 
-  PC_next <= Addr_Branch_MEM when Regs_eq_branch = '1' else
-             PC_plus4;
+  desition_Branch <= Addr_Branch_MEM when Regs_eq_branch = '1' else
+                    PC_plus4;
+
+  PC_next <= desition_Branch when Ctrl_Jump_MEM = '0' else
+             Addr_Jump;     
 
   PC_reg_proc: process(Clk, Reset)
   begin
@@ -219,6 +223,8 @@ begin
     RegDst   => Ctrl_RegDest
   );
 
+  Addr_Jump <= PC_plus4_ID(31 downto 28) & InstructionID(25 downto 0) & "00"; 
+
   R15_0Extended <= x"FFFF" & InstructionID(15 downto 0) when InstructionID(15)='1' else
                   x"0000" & InstructionID(15 downto 0);
 
@@ -262,7 +268,6 @@ begin
   end process;
   enable_ID_EX <= '1';
   
-  --Addr_Jump      <= PC_plus4_EX(31 downto 28) & R15_0EX(25 downto 0) & "00";
   Addr_Branch    <= PC_plus4_EX + ( R15_0EX(29 downto 0) & "00");
   Alu_Op2        <= reg_RT_EX when Ctrl_ALUSrc_EX = '0' else R15_0EX;
 
@@ -286,12 +291,12 @@ begin
   
   reg_RD     <= R20_16 when Ctrl_RegDest_EX = '0' else R15_11;
 
-  Execute_Mem: process(Clk, Reset, enable_EX_MEM, Ctrl_Branch_EX, Ctrl_MemToReg_EX, 
+  Execute_Mem: process(Clk, Reset, enable_EX_MEM, Ctrl_Jump_EX, Ctrl_Branch_EX, Ctrl_MemToReg_EX, 
                        Ctrl_MemWrite_EX, Ctrl_RegWrite_EX, Ctrl_RegDest_EX, Ctrl_MemRead_EX, 
                        Addr_Branch, ALU_Igual, Alu_Res, reg_RT_EX, reg_RD)
   begin
     if reset = '1' then
-      --Ctrl_Jump_MEM <= '0';
+      Ctrl_Jump_MEM <= '0';
       Ctrl_Branch_MEM <= '0';
       Ctrl_MemToReg_MEM <= '0';
       Ctrl_MemWrite_MEM <= '0';
@@ -304,6 +309,7 @@ begin
       reg_RD_MEM <= (others => '0');
       reg_RT_MEM <= (others => '0');
     elsif rising_edge(Clk) and enable_EX_MEM = '1' then
+      Ctrl_Jump_MEM <= Ctrl_Jump_EX;
       Ctrl_Branch_MEM <= Ctrl_Branch_EX;
       Ctrl_MemToReg_MEM <= Ctrl_MemToReg_EX;
       Ctrl_MemWrite_MEM <= Ctrl_MemWrite_EX;
@@ -319,14 +325,8 @@ begin
   end process;
   enable_EX_MEM <= '1';
 
-  Regs_eq_branch <= '1' when (ALU_Igual = '1' and Ctrl_Branch = '1') else
+  Regs_eq_branch <= '1' when (ALU_Igual = '1' and Ctrl_Branch_MEM = '1') else
                     '0';
-  
-  --desition_Branch <= Addr_Branch when Regs_eq_branch = '1' else
-                    --PC_plus4;
-  
-  --Addr_Jump_dest <= Addr_Jump when Ctrl_Jump='1' else
-                    --desition_Branch;
                     
   DAddr      <= Alu_res_MEM;
   DDataOut   <= reg_RT_MEM;

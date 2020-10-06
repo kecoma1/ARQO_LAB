@@ -38,25 +38,34 @@ main:
   
   # realiza operaciones
   add $t3, $t1, $t2 # (r11)t3 = 2
-  xor $t1, $t1, $t2 # (r9)t1 = 0 
-  and $t3, $t1, $t2 # (r11)t3 = 0
-  or $t1, $t1, $t2  # (r9)t1 = 1
-  sub $t1, $t1, $t1 # (r9)t1 = 0
-  lw $t4, 0($zero)  # (r12)t4 = 1
+  xor $t4, $t1, $t2 # (r12)t4 = 0 
+  and $t5, $t1, $t2 # (r13)t5 = 1
+  or $t6, $t1, $t2  # (r14)t1 = 1
+  sub $t7, $t1, $t1 # (r15)t1 = 0
+  lw $t3, 0($zero)  # (r11)t3 = 1
   slt $t4, $t2, $t1 # (r12)t4 = 0
-  slt $t4, $t1, $t2 # (r12)t4 = 1
-  slti $t4, $t4, 10 # (r12)t4 = 1
-  slti $t4, $t4, 0  # (r12)t4 = 0
+  slt $t5, $t1, $t2 # (r13)t5 = 1
+  slti $t6, $t4, 10 # (r14)t6 = 1
+  slti $t7, $t4, 0  # (r15)t7 = 0
   
   # carga datos inmediatos en la parte alta de registros
   lw $t1, 0($zero)  # lw $r9,  0($r0)  -> r9  = 1
   lw $t2, 4($zero)  # lw $r10, 4($r0)  -> r10 = 2
-  lui $t1, 1 # lui $r9, 1  -> queda a 65536  (0x00010000)
-  lui $t2, 2 # lui $r10, 2 -> queda a 131072 (0x00020000)
-
+  lui $t3, 1 # lui $r11, 1  -> queda a 65536  (0x00010000)
+  lui $t6, 2 # lui $r14, 1 -> queda a 65536 (0x00010000)
+  nop
+  nop
+  nop
+  
   beq $t1, $t2, salto # doesn't execute
   lw $t1, 0($zero)  # lw $r9,  0($r0)  -> r9  = 1
   lw $t2, 0($zero)  # lw $r10, 4($r0)  -> r10 = 1
+  nop
+  nop
+  nop
+  nop
+  nop
+  
   beq $t1, $t2, salto # Jumps
   nop
   nop
@@ -64,8 +73,10 @@ main:
 salto:
   nop
   nop
-  sub $t1, $t1, $t1     # t1 = 0
-  lw $t1, 16($zero)  # lw $r9,  0($r0)  -> r9  = 16
+  nop
+  nop
+  nop
+  sub $t2, $t1, $t1     # t2 = 0
   j final
 prueba:
   lw $t1, 20($zero) # doesn't execute t1 = 16
