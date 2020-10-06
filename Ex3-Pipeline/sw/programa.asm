@@ -31,8 +31,12 @@ main:
   
   # carga num6 a num11 en los registros 9 a 14, deberia ser lo mismo
   addi $t1, $t2, 100     # (r9)t1 = 2 + 100 = 102
-  sub $t1, $t1, $t1      # (r9)t1 = 0
-
+  sub $t2, $t1, $t1      # (r9)t2 = 0
+  nop
+  nop
+  nop
+  nop
+  nop
   lw $t1, 0($zero)       # (r9)t1 = 1
   lw $t2, 0($zero)       # (r10)t2 = 1
   
