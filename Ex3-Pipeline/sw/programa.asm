@@ -46,7 +46,7 @@ main:
   nop
   nop
   nop
-  add $t3, $t1, $t2 # (r11)t3 = 1 (data hazard)
+  add $t3, $t1, $t2 # (r11)t3 = 1 
   xor $t4, $t1, $t2 # (r12)t4 = 0 
   and $t5, $t1, $t2 # (r13)t5 = 1
   or $t6, $t1, $t2  # (r14)t1 = 1
