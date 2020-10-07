@@ -74,6 +74,11 @@ main:
   nop
   
   beq $t1, $t2, salto # doesn't execute
+  nop
+  nop
+  nop
+  nop
+  nop
   lw $t1, 0($zero)  # lw $r9,  0($r0)  -> r9  = 1
   lw $t2, 0($zero)  # lw $r10, 4($r0)  -> r10 = 1
   nop
@@ -95,6 +100,11 @@ salto:
   sub $t2, $t1, $t1     # t2 = 0
   j final
 prueba:
+  nop
+  nop
+  nop
+  nop
+  nop
   lw $t1, 20($zero) # doesn't execute t1 = 16
 final:
   nop
