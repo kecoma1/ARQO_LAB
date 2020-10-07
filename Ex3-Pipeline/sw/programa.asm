@@ -90,6 +90,11 @@ main:
   beq $t1, $t2, salto # Jumps
   nop
   nop
+  nop
+  nop
+  nop
+  nop
+  nop
   lw $t1, 44($zero)  # t1 = 32  (doesn't execute)
 salto:
   nop
