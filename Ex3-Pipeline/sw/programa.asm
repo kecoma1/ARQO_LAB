@@ -103,6 +103,11 @@ salto:
   nop
   nop
   sub $t2, $t1, $t1     # t2 = 0
+  nop
+  nop
+  nop
+  nop
+  nop
   j final
 prueba:
   nop
@@ -112,6 +117,7 @@ prueba:
   nop
   lw $t1, 20($zero) # doesn't execute t1 = 16
 final:
+  nop
   nop
   nop
   nop
