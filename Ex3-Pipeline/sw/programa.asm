@@ -46,14 +46,14 @@ main:
   nop
   nop
   nop
-  add $t3, $t1, $t2 # (r11)t3 = 1 
+  add $t3, $t1, $t2 # (r11)t3 = 2 
   xor $t4, $t1, $t2 # (r12)t4 = 0 
   and $t5, $t1, $t2 # (r13)t5 = 1
   or $t6, $t1, $t2  # (r14)t1 = 1
   sub $t7, $t1, $t1 # (r15)t1 = 0
   lw $t3, 0($zero)  # (r11)t3 = 1
-  slt $t4, $t2, $t1 # (r12)t4 = 0
-  slt $t5, $t1, $t2 # (r13)t5 = 1
+  slt $t4, $t2, $t1 # (r12)t4 = 0   1=1
+  slt $t5, $s0, $t1 # (r13)t5 = 1   0<1
   nop
   nop
   nop
@@ -65,8 +65,8 @@ main:
   # carga datos inmediatos en la parte alta de registros
   lw $t1, 0($zero)  # lw $r9,  0($r0)  -> r9  = 1
   lw $t2, 4($zero)  # lw $r10, 4($r0)  -> r10 = 2
-  lui $t3, 1 # lui $r11, 1  -> queda a 65536  (0x00010000)
-  lui $t6, 2 # lui $r14, 1 -> queda a 65536 (0x00010000)
+  lui $t3, 1 # lui $r11, 1  -> queda a (0x00010000)
+  lui $t6, 2 # lui $r14, 2 -> queda a (0x00020000)
   nop
   nop
   nop
@@ -122,6 +122,7 @@ final:
   nop
   nop
   nop
+  add $t3, $t1, $t2 # (r11)t3 = 2 (suma de manera infinita)
   j final
 nosalto:
   lui $t2, 0xFFFF  # lui $r10, 0xFFFF -> no debe ejecutarse

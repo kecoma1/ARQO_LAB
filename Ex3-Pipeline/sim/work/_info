@@ -23,9 +23,9 @@ VcFW5ZB;b38>]=Cd<<nO5X0
 !s100 PZenWJ@F@Xc]_f<F91A7N1
 Z8 OP;C;10.4a;61
 32
-Z9 !s110 1602007836
+Z9 !s110 1602093699
 !i10b 1
-Z10 !s108 1602007836.000000
+Z10 !s108 1602093699.000000
 Z11 !s90 -reportprogress|300|-work|work|-2002|-explicit|-check_synthesis|../rtl/alu.vhd|
 Z12 !s107 ../rtl/alu.vhd|
 !i113 1
@@ -109,11 +109,11 @@ VHTAmd=T6@:ZIkhjkaQJE13
 !s100 =_n4k=hzihD>gb3`7XXMh2
 R8
 32
-Z21 !s110 1602007837
+Z21 !s110 1602093700
 !i10b 1
-Z22 !s108 1602007837.000000
-Z23 !s90 -reportprogress|300|-work|work|-2002|-explicit|-check_synthesis|../rtl/control_unit.vhd|
-Z24 !s107 ../rtl/control_unit.vhd|
+R10
+Z22 !s90 -reportprogress|300|-work|work|-2002|-explicit|-check_synthesis|../rtl/control_unit.vhd|
+Z23 !s107 ../rtl/control_unit.vhd|
 !i113 1
 R13
 R14
@@ -131,22 +131,22 @@ R8
 32
 R21
 !i10b 1
+R10
 R22
 R23
-R24
 !i113 1
 R13
 R14
 Ememory
-Z25 w1567853147
-Z26 DPx4 ieee 16 std_logic_textio 0 22 V5TSK`;aJKC<l]CEg1>mz1
+Z24 w1567853147
+Z25 DPx4 ieee 16 std_logic_textio 0 22 V5TSK`;aJKC<l]CEg1>mz1
 R3
 R2
 R5
 R4
 R0
-Z27 8memory.vhd
-Z28 Fmemory.vhd
+Z26 8memory.vhd
+Z27 Fmemory.vhd
 l0
 L18
 VSUe7POEDTIg<EjYIdM=hJ0
@@ -155,14 +155,14 @@ R8
 32
 R21
 !i10b 1
-R22
+Z28 !s108 1602093700.000000
 Z29 !s90 -reportprogress|300|-work|work|-2002|-explicit|memory.vhd|
 Z30 !s107 memory.vhd|
 !i113 1
 Z31 o-work work -2002 -explicit -O0
 R14
 Abehavioral
-R26
+R25
 R3
 R2
 R5
@@ -176,14 +176,14 @@ R8
 32
 R21
 !i10b 1
-R22
+R28
 R29
 R30
 !i113 1
 R31
 R14
 Eprocessor
-Z32 w1601980608
+Z32 w1602092586
 R2
 R3
 R4
@@ -199,7 +199,7 @@ R8
 32
 R21
 !i10b 1
-R22
+R28
 Z35 !s90 -reportprogress|300|-work|work|-2002|-explicit|-check_synthesis|../rtl/processor.vhd|
 Z36 !s107 ../rtl/processor.vhd|
 !i113 1
@@ -211,22 +211,22 @@ R3
 R4
 R5
 DEx4 work 9 processor 0 22 4AH48lRbbT?k>3Ck6jKP=0
-l160
+l163
 L29
-VbhfX^edg2FUhX?UAWBMKi0
-!s100 in>39b0>KEm`b;=[93<5V0
+Vfm4Kdf^?lH:RPbE^P8C7N1
+!s100 :So<Q?C6enY2FcRGl2V910
 R8
 32
 R21
 !i10b 1
-R22
+R28
 R35
 R36
 !i113 1
 R13
 R14
 Eprocessor_tb
-Z37 w1599640705
+Z37 w1602093615
 R3
 R2
 R4
@@ -242,7 +242,7 @@ R8
 32
 R21
 !i10b 1
-R22
+R28
 Z40 !s90 -reportprogress|300|-work|work|-2002|-explicit|processor_tb.vhd|
 Z41 !s107 processor_tb.vhd|
 !i113 1
@@ -262,7 +262,7 @@ R8
 32
 R21
 !i10b 1
-R22
+R28
 R40
 R41
 !i113 1
