@@ -125,7 +125,7 @@ final:
   add $t3, $t1, $t2 # (r11)t3 = 2 (suma de manera infinita)
   j final
 nosalto:
-  lui $t2, 0xFFFF  # lui $r10, 0xFFFF -> no debe ejecutarse
+  nop
   beq $zero, $zero, final
   nop
   nop
