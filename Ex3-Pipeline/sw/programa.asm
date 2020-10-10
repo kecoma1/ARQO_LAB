@@ -116,15 +116,17 @@ prueba:
   nop
   nop
   lw $t1, 20($zero) # doesn't execute t1 = 16
-final:
+final: 
   nop
   nop
   nop
   nop
   nop
-  add $t3, $t1, $t2 # (r11)t3 = 2 (suma de manera infinita)
+  add $t3, $t3, $t3 # (r11)t3 = t3 + t3 (suma de manera infinita)
   j final
 nosalto:
+  nop
+  nop
   nop
   beq $zero, $zero, final
   nop

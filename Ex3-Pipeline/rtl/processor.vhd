@@ -104,7 +104,6 @@ architecture rtl of processor is
   signal Ctrl_ALUOP     : std_logic_vector(2 downto 0);
 
   signal Addr_Jump      : std_logic_vector(31 downto 0);
-  signal Addr_Jump_dest : std_logic_vector(31 downto 0);
   signal desition_Branch : std_logic_vector(31 downto 0);
   signal Alu_Res        : std_logic_vector(31 downto 0);
 
@@ -162,7 +161,7 @@ architecture rtl of processor is
 
 begin
 
-  Addr_Jump <= PC_plus4(31 downto 28) & InstructionMEM(25 downto 0) & "00";
+  Addr_Jump <= PC_plus4_MEM(31 downto 28) & InstructionMEM(25 downto 0) & "00";
 
   desition_Branch <= Addr_Branch_MEM when Regs_eq_branch = '1' else
                     PC_plus4;
@@ -233,7 +232,7 @@ begin
 
   Decode_Execute: process(Clk, Reset, enable_ID_EX, Ctrl_Jump, Ctrl_Branch, Ctrl_MemToReg,
                           Ctrl_MemWrite, Ctrl_MemRead, Ctrl_ALUSrc, Ctrl_ALUOP, Ctrl_RegWrite,
-                          Ctrl_RegDest, PC_plus4, Reg_RS, reg_RT, R15_0Extended, InstructionID)
+                          Ctrl_RegDest, PC_plus4_ID, Reg_RS, reg_RT, R15_0Extended, InstructionID)
   begin
     if reset = '1' then
       Ctrl_Jump_EX <= '0';
@@ -262,7 +261,7 @@ begin
       Ctrl_ALUOP_EX <= Ctrl_ALUOP;
       Ctrl_RegWrite_EX <= Ctrl_RegWrite;
       Ctrl_RegDest_EX <= Ctrl_RegDest;
-      PC_plus4_EX <= PC_plus4;
+      PC_plus4_EX <= PC_plus4_ID;
       reg_RS_EX <= Reg_RS;
       reg_RT_EX <= reg_RT;
       R15_0EX <= R15_0Extended;
