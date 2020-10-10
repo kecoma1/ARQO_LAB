@@ -128,6 +128,7 @@ nosalto:
   nop
   nop
   nop
+  nop
   beq $zero, $zero, final
   nop
   nop
