@@ -1,5 +1,0 @@
-En alu_control hay que añadir instrucciones
-
-Instrucciones a añadir
-	J
-	NOP

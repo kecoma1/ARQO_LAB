@@ -65,7 +65,7 @@ salto:
   nop
   nop
   sub $t1, $t1, $t1     # t1 = 0
-  lw $t1, 16($zero)  # lw $r9,  0($r0)  -> r9  = 16
+  lw $t1, 0($zero)  # lw $r9,  0($r0)  -> r9  = 1
   j final
 prueba:
   lw $t1, 20($zero) # doesn't execute t1 = 16
