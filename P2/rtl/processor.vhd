@@ -204,6 +204,13 @@ begin
   end process;
   enable_IF_ID <= '1'; 
 
+  -- H A Z A R D   D E T E C T I O N   U N I T
+
+      
+
+  -- H A Z A R D   D E T E C T I O N   U N I T
+
+
   RegsMIPS : reg_bank
   port map (
     Clk   => Clk,
