@@ -317,43 +317,14 @@ begin
   enable_ID_EX <= '1';
 
   -- Forwarding unit
-  Forwarding_Unit: process(Clk, Reset)
-  begin
-    if reset = '1' then
-      Forward_RS <= (others => '0');
-      Forward_RT <= (others => '0');
-    elsif rising_edge(Clk) then
 
-      -- Forwarding in the stage MEM (RS)
-      if Ctrl_RegWrite_MEM = '1' and reg_RD_MEM /= "00000" and reg_RD_MEM = R20_16 then
-        Forward_RS <= "10";
-      else
-        Forward_RS <= "00";
-      end if;
+  Forward_RS <= "10" when (Ctrl_RegWrite_MEM = '1' and reg_RD_MEM /= "00000" and reg_RD_MEM = InstructionEX(25 downto 21)) else -- Forwarding in the stage MEM (RS)
+                "01" when (Ctrl_RegWrite_WB = '1' and reg_RD_WB /= "00000" and reg_RD_WB = InstructionEX(25 downto 21)) else -- Forwarding in the stage WB (RS)
+                "00";
 
-      -- Forwarding in the stage MEM (RT)
-      if Ctrl_RegWrite_MEM = '1' and reg_RD_MEM /= "00000" and reg_RD_MEM = R15_11 then
-        Forward_RT <= "10";
-      else
-        Forward_RT <= "00";
-      end if;
-
-      -- Forwarding in the stage WB (RS)
-      if Ctrl_RegWrite_WB = '1' and reg_RD_WB /= "00000" and reg_RD_WB = R20_16 then
-        Forward_RS <= "01";
-      else
-        Forward_RS <= "00";
-      end if;
-
-      -- Forwarding in the stage WB (RT)
-      if Ctrl_RegWrite_WB = '1' and reg_RD_WB /= "00000" and reg_RD_WB = R15_11 then
-        Forward_RT <= "01";
-      else
-        Forward_RT <= "00";
-      end if;
-      
-    end if;
-  end process;
+  Forward_RT <= "10" when (Ctrl_RegWrite_MEM = '1' and reg_RD_MEM /= "00000" and reg_RD_MEM = InstructionEX(20 downto 16)) else -- Forwarding in the stage MEM (RT)
+                "01" when (Ctrl_RegWrite_WB = '1' and reg_RD_WB /= "00000" and reg_RD_WB = InstructionEX(20 downto 16)) else -- Forwarding in the stage WB (RT)
+                "00";  
 
   -- Multiplexer for RS (forwarding unit)
   Forward_RS_Result <= reg_RS_EX when Forward_RS = "00" else 
