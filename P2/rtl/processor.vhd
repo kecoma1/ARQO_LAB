@@ -170,6 +170,20 @@ architecture rtl of processor is
   -- Hazard unit signal
   signal Hazard : std_logic;
 
+  -- Enable Pc
+  signal enable_PC : std_logic; 
+
+  -- Auxiliar signals for control unit
+  signal Ctrl_Jump_aux : std_logic;
+  signal Ctrl_Branch_aux : std_logic;
+  signal Ctrl_MemtoReg_aux : std_logic;
+  signal Ctrl_MemWrite_aux : std_logic;
+  signal Ctrl_MemRead_aux : std_logic;
+  signal Ctrl_ALUSrc_aux : std_logic;
+  signal Ctrl_ALUOp_aux : std_logic_vector(2 downto 0);
+  signal Ctrl_RegWrite_aux : std_logic;
+  signal Ctrl_RegDest_aux : std_logic;    
+
 begin
 
   Addr_Jump <= PC_plus4_MEM(31 downto 28) & InstructionMEM(25 downto 0) & "00";
@@ -180,11 +194,11 @@ begin
   PC_next <= desition_Branch when Ctrl_Jump_MEM = '0' else
              Addr_Jump;     
 
-  PC_reg_proc: process(Clk, Reset)
+  PC_reg_proc: process(Clk, Reset, enable_PC, PC_next)
   begin
     if Reset = '1' then
       PC_reg <= (others => '0');
-    elsif rising_edge(Clk) then
+    elsif rising_edge(Clk) and enable_PC = '1' then
       PC_reg <= PC_next;
     end if;
   end process;
@@ -205,12 +219,15 @@ begin
       InstructionID <= Instruction;
     end if;
   end process;
-  enable_IF_ID <= '1'; 
 
   -- Hazard unit
-  Hazard <= '0' when Ctrl_MemRead_EX and ( (reg_RT_EX = reg_RS) or (reg_RT_EX = reg_RT) )
+  Hazard <= '1' when (Ctrl_MemRead_EX = '1' and ((reg_RT_EX = reg_RS) or (reg_RT_EX = reg_RT)))
                                     -- and (InstructionID(31 downto 26) = "100011") -- Only for lw
-                else '1';
+                else '0';
+
+  -- Changing enable signals
+  enable_IF_ID <= '0' when Hazard = '1' else '1';
+  enable_PC <= '0' when Hazard = '1' else '1';
 
   RegsMIPS : reg_bank
   port map (
@@ -244,22 +261,22 @@ begin
   ); 
 
   -- 'Multiplexer' after control unit and hazard detection unit
-  Ctrl_Jump <= null when Hazard = '0' else '0';
-  Ctrl_Branch <= null when Hazard = '0' else '0';
-  Ctrl_MemtoReg <= null when Hazard = '0' else '0';
-  Ctrl_MemWrite <= null when Hazard = '0' else '0';
-  Ctrl_MemRead <= null when Hazard = '0' else '0';
-  Ctrl_ALUSrc <= null when Hazard = '0' else '0';
-  Ctrl_ALUOp <= null when Hazard = '0' else "000";
-  Ctrl_RegWrite <= null when Hazard = '0' else '0';
-  Ctrl_RegDest <= null when Hazard = '0' else '0';
+  Ctrl_Jump_aux <= '0' when Hazard = '1' else Ctrl_Jump;
+  Ctrl_Branch_aux <= '0' when Hazard = '1' else Ctrl_Branch;
+  Ctrl_MemtoReg_aux <= '0' when Hazard = '1' else Ctrl_MemtoReg;
+  Ctrl_MemWrite_aux <= '0' when Hazard = '1' else Ctrl_MemWrite;
+  Ctrl_MemRead_aux <= '0' when Hazard = '1' else Ctrl_MemRead;
+  Ctrl_ALUSrc_aux <= '0' when Hazard = '1' else Ctrl_ALUSrc;
+  Ctrl_ALUOp_aux <= "000" when Hazard = '1' else Ctrl_ALUOp;
+  Ctrl_RegWrite_aux <= '0' when Hazard = '1' else Ctrl_RegWrite;
+  Ctrl_RegDest_aux <= '0' when Hazard = '1' else Ctrl_RegDest;
 
   R15_0Extended <= x"FFFF" & InstructionID(15 downto 0) when InstructionID(15)='1' else
                   x"0000" & InstructionID(15 downto 0);
 
-  Decode_Execute: process(Clk, Reset, enable_ID_EX, Ctrl_Jump, Ctrl_Branch, Ctrl_MemToReg,
-                          Ctrl_MemWrite, Ctrl_MemRead, Ctrl_ALUSrc, Ctrl_ALUOP, Ctrl_RegWrite,
-                          Ctrl_RegDest, PC_plus4_ID, reg_RS, reg_RT, R15_0Extended, InstructionID)
+  Decode_Execute: process(Clk, Reset, enable_ID_EX, Ctrl_Jump_aux, Ctrl_Branch_aux, Ctrl_MemToReg_aux,
+                          Ctrl_MemWrite_aux, Ctrl_MemRead_aux, Ctrl_ALUSrc_aux, Ctrl_ALUOP_aux, Ctrl_RegWrite_aux,
+                          Ctrl_RegDest_aux, PC_plus4_ID, reg_RS, reg_RT, R15_0Extended, InstructionID)
   begin
     if reset = '1' then
       Ctrl_Jump_EX <= '0';
@@ -279,15 +296,15 @@ begin
       R15_11 <= (others => '0');
       InstructionEX <= (others => '0');
     elsif rising_edge(Clk) and enable_ID_EX = '1' then
-      Ctrl_Jump_EX <= Ctrl_Jump;
-      Ctrl_Branch_EX <= Ctrl_Branch;
-      Ctrl_MemToReg_EX <= Ctrl_MemToReg;
-      Ctrl_MemWrite_EX <= Ctrl_MemWrite;
-      Ctrl_MemRead_EX <= Ctrl_MemRead;
-      Ctrl_ALUSrc_EX <= Ctrl_ALUSrc;
-      Ctrl_ALUOP_EX <= Ctrl_ALUOP;
-      Ctrl_RegWrite_EX <= Ctrl_RegWrite;
-      Ctrl_RegDest_EX <= Ctrl_RegDest;
+      Ctrl_Jump_EX <= Ctrl_Jump_aux;
+      Ctrl_Branch_EX <= Ctrl_Branch_aux;
+      Ctrl_MemToReg_EX <= Ctrl_MemToReg_aux;
+      Ctrl_MemWrite_EX <= Ctrl_MemWrite_aux;
+      Ctrl_MemRead_EX <= Ctrl_MemRead_aux;
+      Ctrl_ALUSrc_EX <= Ctrl_ALUSrc_aux;
+      Ctrl_ALUOP_EX <= Ctrl_ALUOP_aux;
+      Ctrl_RegWrite_EX <= Ctrl_RegWrite_aux;
+      Ctrl_RegDest_EX <= Ctrl_RegDest_aux;
       PC_plus4_EX <= PC_plus4_ID;
       reg_RS_EX <= reg_RS;
       reg_RT_EX <= reg_RT;
@@ -300,7 +317,7 @@ begin
   enable_ID_EX <= '1';
 
   -- Forwarding unit
-  Forwarding_Unit: process(Clk, Reset, Ctrl_RegWrite_MEM, reg_RD_MEM, reg_RD_WB, R20_16, R15_11)
+  Forwarding_Unit: process(Clk, Reset)
   begin
     if reset = '1' then
       Forward_RS <= (others => '0');
@@ -339,12 +356,12 @@ begin
   end process;
 
   -- Multiplexer for RS (forwarding unit)
-  Forward_RS_Result <= reg_RS_EX when Forward_RS = "00" elsif 
+  Forward_RS_Result <= reg_RS_EX when Forward_RS = "00" else 
                        reg_RD_Data when Forward_RS = "01" else
                        Alu_res_MEM;
 
   -- Multiplexer for RT (forwarding unit)
-  Forward_RT_Result <= reg_RT_EX when Forward_RT = "00" elsif 
+  Forward_RT_Result <= reg_RT_EX when Forward_RT = "00" else 
                        reg_RD_Data when Forward_RT = "01" else
                        Alu_res_MEM;
                          
