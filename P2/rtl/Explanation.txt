@@ -8,10 +8,10 @@ Instruction 1
 Instruction 2
 
 This is a clock cycle, What we are doing now is writing in the moment 2 in the register, at that moment the value
-of the register we need is updated. In the moment 1 is when the instruction 2 (the one which is in the ID statge) takes the 
+of the register we need is updated. In the moment 1 is when the instruction 2 (the one which is in the ID stage) takes the 
 instruction from the ID register, and in the moment 3 is when the register EX-MEM register is updated with a value in the register, 
 as we are updating it in the moment 2, the value is already written in the register when we write.
 
 If the value is updated in the rising edge, the value would be updated in the moment 3, at that moment the 
-Instruction EX register is being updated, so we are writing at the same time that we read, and thats not possible, the value
+Instruction EX register is being updated, so we are writing at the same time that we read, and that's not possible, the value
 would not be the one we expect it to be in a real word development because writing is not something instantaneous.

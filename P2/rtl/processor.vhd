@@ -167,6 +167,9 @@ architecture rtl of processor is
   signal Forward_RS_Result : std_logic_vector(31 downto 0);
   signal Forward_RT_Result : std_logic_vector(31 downto 0);
 
+  -- Hazard unit signal
+  signal Hazard : std_logic;
+
 begin
 
   Addr_Jump <= PC_plus4_MEM(31 downto 28) & InstructionMEM(25 downto 0) & "00";
@@ -204,12 +207,10 @@ begin
   end process;
   enable_IF_ID <= '1'; 
 
-  -- H A Z A R D   D E T E C T I O N   U N I T
-
-      
-
-  -- H A Z A R D   D E T E C T I O N   U N I T
-
+  -- Hazard unit
+  Hazard <= '0' when Ctrl_MemRead_EX and ( (reg_RT_EX = reg_RS) or (reg_RT_EX = reg_RT) )
+                                    -- and (InstructionID(31 downto 26) = "100011") -- Only for lw
+                else '1';
 
   RegsMIPS : reg_bank
   port map (
@@ -242,12 +243,23 @@ begin
     RegDst   => Ctrl_RegDest
   ); 
 
+  -- 'Multiplexer' after control unit and hazard detection unit
+  Ctrl_Jump <= null when Hazard = '0' else '0';
+  Ctrl_Branch <= null when Hazard = '0' else '0';
+  Ctrl_MemtoReg <= null when Hazard = '0' else '0';
+  Ctrl_MemWrite <= null when Hazard = '0' else '0';
+  Ctrl_MemRead <= null when Hazard = '0' else '0';
+  Ctrl_ALUSrc <= null when Hazard = '0' else '0';
+  Ctrl_ALUOp <= null when Hazard = '0' else "000";
+  Ctrl_RegWrite <= null when Hazard = '0' else '0';
+  Ctrl_RegDest <= null when Hazard = '0' else '0';
+
   R15_0Extended <= x"FFFF" & InstructionID(15 downto 0) when InstructionID(15)='1' else
                   x"0000" & InstructionID(15 downto 0);
 
   Decode_Execute: process(Clk, Reset, enable_ID_EX, Ctrl_Jump, Ctrl_Branch, Ctrl_MemToReg,
                           Ctrl_MemWrite, Ctrl_MemRead, Ctrl_ALUSrc, Ctrl_ALUOP, Ctrl_RegWrite,
-                          Ctrl_RegDest, PC_plus4_ID, Reg_RS, reg_RT, R15_0Extended, InstructionID)
+                          Ctrl_RegDest, PC_plus4_ID, reg_RS, reg_RT, R15_0Extended, InstructionID)
   begin
     if reset = '1' then
       Ctrl_Jump_EX <= '0';
@@ -277,7 +289,7 @@ begin
       Ctrl_RegWrite_EX <= Ctrl_RegWrite;
       Ctrl_RegDest_EX <= Ctrl_RegDest;
       PC_plus4_EX <= PC_plus4_ID;
-      reg_RS_EX <= Reg_RS;
+      reg_RS_EX <= reg_RS;
       reg_RT_EX <= reg_RT;
       R15_0EX <= R15_0Extended;
       R20_16 <= InstructionID(20 downto 16);
