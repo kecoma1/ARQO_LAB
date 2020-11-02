@@ -45,7 +45,7 @@ main:
   nop
   nop
   nop
-  add $s0, $t1, $t2  # en r16 un 20 = 5 + 15
+  add $s0, $t1, $t2  # en r16 un 41 = 5 + 36
   add $s0, $s0, $s0  # Dependencia con la anterior  # en r16 un 40 = 20 + 20. 
   add $s1, $s0, $s0  # dependencia con la anterior  # en r16 un 80 = 40 + 40
   nop
