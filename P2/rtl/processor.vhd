@@ -213,7 +213,7 @@ begin
 
   -- Auxiliar signal for doing nops just when we branch
   branch_aux <= '1' when InstructionID(31 downto 26) = "000100" 
-                             or InstructionEX(31 downto 26) = "000100" 
+                             or InstructionEX(31 downto 26) = "000100"
                     else '0';
 
   Fetch_Decode: process(Clk, Reset, enable_IF_ID, PC_plus4, Instruction)
