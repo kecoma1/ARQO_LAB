@@ -209,6 +209,9 @@ begin
   Instruction <= x"04000000" when IDataIn = x"00000000" else
                 IDataIn; -- nop
 
+  -- If it is branch, stall the pc
+  --enable_PC <= '0' when Instruction(31 downto 26) = "000100" else '1'
+
   Fetch_Decode: process(Clk, Reset, enable_IF_ID, PC_plus4, Instruction)
   begin
     if reset = '1' then
@@ -274,6 +277,12 @@ begin
   R15_0Extended <= x"FFFF" & InstructionID(15 downto 0) when InstructionID(15)='1' else
                   x"0000" & InstructionID(15 downto 0);
 
+  -- If it is branch, stall the IF_ID register
+  enable_PC <= '1';
+  enable_IF_ID <= '1';
+ -- enable_PC <= '0' when Instruction(31 downto 26) = "000100" else '1';
+ -- enable_IF_ID <= '0' when Instruction(31 downto 26) = "000100" else '1';
+
   Decode_Execute: process(Clk, Reset, enable_ID_EX, Ctrl_Jump_aux, Ctrl_Branch_aux, Ctrl_MemToReg_aux,
                           Ctrl_MemWrite_aux, Ctrl_MemRead_aux, Ctrl_ALUSrc_aux, Ctrl_ALUOP_aux, Ctrl_RegWrite_aux,
                           Ctrl_RegDest_aux, PC_plus4_ID, reg_RS, reg_RT, R15_0Extended, InstructionID)
@@ -314,7 +323,6 @@ begin
       InstructionEX <= InstructionID;
     end if;
   end process;
-  enable_ID_EX <= '1';
 
   -- Forwarding unit
 
@@ -358,6 +366,11 @@ begin
   );
   
   reg_RD     <= R20_16 when Ctrl_RegDest_EX = '0' else R15_11;
+
+    -- If it is branch, stall the registers
+    --enable_PC <= '0' when Instruction(31 downto 26) = "000100" else '1';
+    --enable_IF_ID <= '0' when Instruction(31 downto 26) = "000100" else '1';
+    --enable_ID_EX <= '0' when Instruction(31 downto 26) = "000100" else '1';
 
   Execute_Mem: process(Clk, Reset, enable_EX_MEM, Ctrl_Jump_EX, Ctrl_Branch_EX, Ctrl_MemToReg_EX, 
                        Ctrl_MemWrite_EX, Ctrl_RegWrite_EX, Ctrl_RegDest_EX, Ctrl_MemRead_EX, 
