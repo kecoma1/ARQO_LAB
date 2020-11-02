@@ -182,7 +182,6 @@ architecture rtl of processor is
   signal Ctrl_ALUOp_aux : std_logic_vector(2 downto 0);
   signal Ctrl_RegWrite_aux : std_logic;
   signal Ctrl_RegDest_aux : std_logic;    
-  signal branch_aux : std_logic;
 
 begin
 
@@ -206,15 +205,8 @@ begin
   PC_plus4    <= PC_reg + 4;
   IAddr       <= PC_reg;
 
-  Instruction <= x"04000000" when IDataIn = x"00000000"
-                             or InstructionID(31 downto 26) = "000100" 
-                             or InstructionEX(31 downto 26) = "000100" 
-                             else IDataIn; -- nop
-
-  -- Auxiliar signal for doing nops just when we branch
-  branch_aux <= '1' when InstructionID(31 downto 26) = "000100" 
-                             or InstructionEX(31 downto 26) = "000100" 
-                    else '0';
+  Instruction <= x"04000000" when IDataIn = x"00000000" or InstructionID(31 downto 26) = "000100" else
+                IDataIn; -- nop
 
   Fetch_Decode: process(Clk, Reset, enable_IF_ID, PC_plus4, Instruction)
   begin
@@ -232,11 +224,13 @@ begin
                                     -- and (InstructionID(31 downto 26) = "100011") -- Only for lw
                 else '0';
 
-  -- Changing enable signals if it is branch and if we have a hazard, stall the pc and the IF_ID register
-  enable_IF_ID <= '0' when Hazard = '1' else '1';
-  enable_PC <= '0' when Hazard = '1' or (Instruction = x"04000000" and InstructionEX(31 downto 26) /= x"04000000"
-                                         and branch_aux = '1')
-                   else '1';
+  -- Changing enable signals and also if it is branch, stall the pc
+  enable_IF_ID <= '0' when Hazard = '1' or InstructionID(31 downto 26) = "000100" else
+                  '1' when InstructionEX(31 downto 26) = "000100" else
+                  '1';
+  enable_PC <= '0' when Hazard = '1' or Instruction(31 downto 26) = "000000" else
+                  '1' when InstructionEX(31 downto 26) = "000100" else
+                  '1';
 
   RegsMIPS : reg_bank
   port map (

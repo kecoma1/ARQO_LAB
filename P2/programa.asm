@@ -51,7 +51,3 @@ executes_branch2:
   lw $t5, 20($zero) # lw $r13, 16($r0) -> r13 = 32
   lw $t6, 20($zero) # lw $r14, 20($r0) -> r14 = 32
   
-
-  
-  
-  
