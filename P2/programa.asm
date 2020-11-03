@@ -54,10 +54,3 @@ executes_branch2:
   lw $t2, 4($zero)  # lw $r10, 4($r0)  -> r10 = 2
   beq $t1, $t2, executes_branch2 # DOESN'T JUMP
   beq $t1, $t1, executes_branch2 # JUMP
-
-  
-  
-
-  
-  
-  
