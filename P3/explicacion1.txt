@@ -1,0 +1,19 @@
+1 2 3 4
+5 6 7 8
+9 0 1 2
+The matrix is stored in memory like this:
+
+1 2 3 4 5 6 7 8 9 0 1 2
+
+So if we try to access the matrix by rows, we will traverse the memory in a linear way. We would have to just access the next element in memory in each iteration.
+
+------------------------------------>
+
+But if we try to access by columns we have to calculate everytime the position where the element is in the memory.
+
+First we would access 1, then the element 5 which is not next to 1 in memory and so on... The proccess of taking the right element would take some time.
+
+So when the array is small, in the case where we have to calculate the sum by columns, there's less distance between each element, therefore we wouldn't have to traverse that much in the memory.
+But when it is bigger the distance between each element is increased, so now we have to traverse more in memory to get the right element.
+
+

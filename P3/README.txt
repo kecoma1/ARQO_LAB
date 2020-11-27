@@ -15,3 +15,24 @@ Save the data in time_slow_fast.dat --> <N> <time "slow"> <time "fast">\n
 Draw a plot and save it. time_slow_fast.png
 
 Explain the results
+
+
+
+
+2. 
+Matrices NxN 
+2000+512*6 -> 2000+512*7  --- Tamaño matriz
+5072 -- +64 --> 5584
+
+I1 y D1 - 1024, 2048, 4096 y 8192 Bytes
+LL - 8*2²⁰
+
+1 way 
+64 bytes line sizes
+
+Guardamos en 1024.dat 2048.dat ...
+    Dentro tiene que haber
+    N (size matriz) Misses read slow    Misses write slow   Misses read fast    Misses write fast
+
+valgrind --tool=cachegrind --cachegrind-out-file=ls_out.dat ls
+cg_annotate ls_out.dat | head -n 30
