@@ -1,0 +1,9 @@
+Yes, there are changes by varying the cache. If we have a small cache, it is less probable to find there the data we are looking for, but if we have a bigger cache, it is
+more probable to have stored the data anywhere in the cache. So having a big cache means less misses. That's the general case.
+
+For the fast program, the data is stored and accessed in a sequential way. So when a block of memory is stored in the cache is more probable that if, for example we have
+an array with 1 --> 2 --> 3, these three numbers are all stored in the same block and therefore there are less misses.
+
+But for the slow program we don't access the memory in a sequential way, we may access the element 2 and then the element 6 (for example), so it is less probable that the 6
+is in the same block of the cache. Therefore, there are going to be more cache misses for those non-sequential accesses.
+The fast program is always going to have less read misses but when we refer to write misses, both have the same misses because we are writing in the same way in both of the programs.

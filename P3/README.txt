@@ -36,3 +36,8 @@ Guardamos en 1024.dat 2048.dat ...
 
 valgrind --tool=cachegrind --cachegrind-out-file=ls_out.dat ls
 cg_annotate ls_out.dat | head -n 30
+
+3.
+Matrices NxN
+256+256*6 --> 256+256*7  -- Tamaño matriz
+1792 -- +32 --> 2048
