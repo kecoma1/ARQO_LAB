@@ -1,5 +1,5 @@
-Ninicio=1792
-Nfinal=2048
+Ninicio=32 #1792
+Nfinal=128 #2048
 Npaso=32
 EX_3_Cache_png=mult_cache.png
 EX_3_Time_png=mult_time.png
@@ -8,13 +8,11 @@ rm -f mult.dat
 
 total1=0
 total2=0
-cache_size=1024
-cache_size2=8192
 
 echo "Exercise 3"
 echo "Executing time ..."
 for i in $(seq $Ninicio $Npaso $Nfinal ); do
-    echo -e "SIZE $i / $Nfinal"
+    echo -e "SIZE $i / $Nfinal -- $(bc <<< "scale=5;($i/$Nfinal)*100")%"
     for n in $(seq 1 1 15); do
         size1=$(./multiplication $i | grep 'time' | awk '{print $3}')
         total1=$(bc <<< "scale=2;$total1+$size1")
@@ -26,16 +24,14 @@ for i in $(seq $Ninicio $Npaso $Nfinal ); do
     total2=$(bc <<< "scale=6;$total2/15")
 
     echo "Executing Valgrind ..."
-    for ((N = cache_size ; N <= cache_size2 ; N *= 2)); do
-        echo -e "\tSIZE $N / $cache_size2"
-        valgrind --tool=cachegrind --I1=$N,1,64 --D1=$N,1,64 --LL=8388608,1,64 --cachegrind-out-file=ls_out.dat ./multiplication $i &>/dev/null
-        D1mr_multiplication=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $5}') # D1mr multiplication
-        D1mw_multiplication=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $8}') # D1mw multiplication
-        valgrind --tool=cachegrind --I1=$N,1,64 --D1=$N,1,64 --LL=8388608,1,64 --cachegrind-out-file=ls_out.dat ./mult_trasp $i &>/dev/null
-        D1mr_mult_trasp=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $5}') # D1mr mult_trasp
-        D1mw_mult_trasp=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $8}') # D1mw mult_trasp
-        echo -e "$i\t$total1\t$D1mr_multiplication\t$D1mw_multiplication\t$total2\t$D1mr_mult_trasp\t$D1mw_mult_trasp" | tr -d , >> mult.dat
-    done
+    echo
+    valgrind --tool=cachegrind --I1=1024,1,64 --D1=1024,1,64 --LL=8388608,1,64 --cachegrind-out-file=ls_out.dat ./multiplication $i &>/dev/null
+    D1mr_multiplication=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $5}') # D1mr multiplication
+    D1mw_multiplication=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $8}') # D1mw multiplication
+    valgrind --tool=cachegrind --I1=1024,1,64 --D1=1024,1,64 --LL=8388608,1,64 --cachegrind-out-file=ls_out.dat ./mult_trasp $i &>/dev/null
+    D1mr_mult_trasp=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $5}') # D1mr mult_trasp
+    D1mw_mult_trasp=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $8}') # D1mw mult_trasp
+    echo -e "$i\t$total1\t$D1mr_multiplication\t$D1mw_multiplication\t$total2\t$D1mr_mult_trasp\t$D1mw_mult_trasp" | tr -d , >> mult.dat
 done
 
 # Drawing cache misses and execution time for exercise 3

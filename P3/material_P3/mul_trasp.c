@@ -5,6 +5,7 @@
 #include "arqo3.h"
 
 void compute_multi(tipo **input1, tipo **input2, tipo **output,int n);
+void traspose(tipo **input, int n);
 
 int main( int argc, char *argv[])
 {
@@ -40,10 +41,13 @@ int main( int argc, char *argv[])
         free(input1);
         input1 = NULL;
         free(input2);
-        input2 = NULL;
+        input1 = NULL;
 		return -1;
 	}
 	gettimeofday(&ini,NULL);
+
+    /* We traspose the matrix b */
+    traspose(input2, n);
 
 	/* Main computation */
 	compute_multi(input1, input2, output, n);
@@ -63,6 +67,20 @@ int main( int argc, char *argv[])
 	return 0;
 }
 
+void traspose(tipo **input, int n) {
+    int i = 0, j = 0;
+    tipo aux = 0;
+
+    for (i = 0; i < n; i++) {
+        for (j = i+1; j < n; j++) {
+            aux = input[i][j];
+            input[i][j] = input[j][i];
+            input[j][i] = aux;
+        }
+    }
+}
+
+/* Traspose multiplication. Row by Row */
 void compute_multi(tipo **input1, tipo **input2, tipo **output, int n)
 {
 	tipo sum = 0, mul = 0;
@@ -73,9 +91,9 @@ void compute_multi(tipo **input1, tipo **input2, tipo **output, int n)
 		/* Traverse through the columns of matrix c */
         for (j = 0; j < n; j++) {
             /* Traverse through the columns and rows of matrixes a and b */
-			sum = 0;
+            sum = 0;
             for (k = 0; k < n; k++) {
-                mul = input1[i][k]*input2[k][j];
+                mul = input1[i][k]*input2[j][k];
                 sum += mul;
             }
 			/* Store the value of the sum in the matrix c */

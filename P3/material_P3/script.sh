@@ -17,8 +17,7 @@ total2=0
 size1=0
 size2=0
 
-# Ejecutando time
-echo "Ejecutando time ..."
+echo "Executing time ..."
 for i in $(seq $Ninicio $Npaso $Nfinal ); do
     echo -e "SIZE $i / $Nfinal -- $(bc <<< "scale=5;($i/$Nfinal)*100")%"
     for n in $(seq 1 1 15); do
@@ -33,6 +32,7 @@ for i in $(seq $Ninicio $Npaso $Nfinal ); do
     echo -e "$i\t$total1\t $total2" >> $fDAT
 done
 
+# Drawing time execution
 gnuplot << END_GNUPLOT
 set title "Slow-Fast Execution Time"
 set ylabel "Execution time (s)"
@@ -51,7 +51,7 @@ Ninicio=128 #5072
 Nfinal=256 #5584
 Npaso=64
 
-echo "Ejecutando Valgrind ..."
+echo "Executing Valgrind ..."
 for ((N = cache_size ; N <= cache_size2 ; N *= 2)); do
     echo -e "STEP $N / 8192"
     for ((i = Ninicio ; i <= Nfinal ; i += Npaso)); do
@@ -61,15 +61,15 @@ for ((N = cache_size ; N <= cache_size2 ; N *= 2)); do
         valgrind --tool=cachegrind --I1=$N,1,64 --D1=$N,1,64 --LL=8388608,1,64 --cachegrind-out-file=ls_out.dat ./fast $i &>/dev/null
         D1mr_fast=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $5}' ) # D1mr fast
         D1mw_fast=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $8}') # D1mw fast
-        echo $i $D1mr_slow $D1mw_slow $D1mr_fast $D1mw_fast | tr -d , >> $N.dat
+        echo -e "$i\t$D1mr_slow\t$D1mw_slow\t$D1mr_fast\t$D1mw_fast" | tr -d , >> $N.dat
     done
 done
 
-# Drawing read misses
+# Drawing read and write misses
 gnuplot << END_GNUPLOT
 set title "Valgrind Execution - Read Misses"
 set ylabel "Read misses"
-set xlabel "Cache size"
+set xlabel "Matrix size"
 set key left top
 set grid
 set terminal png size 1920,1080

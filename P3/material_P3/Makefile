@@ -4,7 +4,7 @@ FLAGS = -g -Wall -D_GNU_SOURCE
 
 .PHONY: clean all
 
-all: fast slow multiplication
+all: fast slow multiplication mul_trasp
 
 fast: fast.c arqo3.c
 	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
@@ -15,5 +15,8 @@ slow: slow.c arqo3.c
 multiplication: multiplication.c arqo3.c
 	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
 
+mul_trasp: mul_trasp.c arqo3.c
+	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
+
 clean:
-	rm -f *.o *~ fast slow multiplication
+	rm -f *.o *~ fast slow multiplication mul_trasp *.dat *.png
