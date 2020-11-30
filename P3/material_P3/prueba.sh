@@ -3,13 +3,9 @@ Nfinal=128
 Npaso=16
 EX_3_Cache_png=mult_cache.png
 EX_3_Time_png=mult_time.png
-
 rm -f mult.dat
-
 total1=0
 total2=0
-cache_size=1024
-cache_size2=8192
 
 echo "Exercise 3"
 echo "Executing time ..."
