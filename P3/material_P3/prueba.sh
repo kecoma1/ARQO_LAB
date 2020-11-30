@@ -25,17 +25,14 @@ for i in $(seq $Ninicio $Npaso $Nfinal ); do
     total1=$(bc <<< "scale=6;$total1/15")
     total2=$(bc <<< "scale=6;$total2/15")
 
-    echo "Executing Valgrind ..."
-    for ((N = cache_size ; N <= cache_size2 ; N *= 2)); do
-        echo -e "\tSIZE $N / $cache_size2"
-        valgrind --tool=cachegrind --I1=$N,1,64 --D1=$N,1,64 --LL=8388608,1,64 --cachegrind-out-file=ls_out.dat ./multiplication $i &>/dev/null
-        D1mr_multiplication=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $5}') # D1mr multiplication
-        D1mw_multiplication=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $8}') # D1mw multiplication
-        valgrind --tool=cachegrind --I1=$N,1,64 --D1=$N,1,64 --LL=8388608,1,64 --cachegrind-out-file=ls_out.dat ./mult_trasp $i &>/dev/null
-        D1mr_mult_trasp=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $5}') # D1mr mult_trasp
-        D1mw_mult_trasp=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $8}') # D1mw mult_trasp
-        echo -e "$i\t$total1\t$D1mr_multiplication\t$D1mw_multiplication\t$total2\t$D1mr_mult_trasp\t$D1mw_mult_trasp" | tr -d , >> mult.dat
-    done
+    echo -e "\tSIZE $N / $cache_size2"
+    valgrind --tool=cachegrind --I1=$N,1,64 --D1=$N,1,64 --LL=8388608,1,64 --cachegrind-out-file=ls_out.dat ./multiplication $i &>/dev/null
+    D1mr_multiplication=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $5}') # D1mr multiplication
+    D1mw_multiplication=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $8}') # D1mw multiplication
+    valgrind --tool=cachegrind --I1=$N,1,64 --D1=$N,1,64 --LL=8388608,1,64 --cachegrind-out-file=ls_out.dat ./mult_trasp $i &>/dev/null
+    D1mr_mult_trasp=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $5}') # D1mr mult_trasp
+    D1mw_mult_trasp=$(cg_annotate ls_out.dat | head -n 30 | grep 'PROGRAM TOTALS'| awk '{print $8}') # D1mw mult_trasp
+    echo -e "$i\t$total1\t$D1mr_multiplication\t$D1mw_multiplication\t$total2\t$D1mr_mult_trasp\t$D1mw_mult_trasp" | tr -d , >> mult.dat
 done
 
 # Drawing cache misses and execution time for exercise 3
