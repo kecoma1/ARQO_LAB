@@ -1,6 +1,6 @@
 #!/bin/bash
-Ninicio=0 #16144
-Nfinal=1024 #17168
+Ninicio=16144
+Nfinal=17168
 Npaso=64
 fDAT=time_slow_fast.dat
 fPNG=time_slow_fast.png
@@ -48,8 +48,8 @@ replot
 quit
 END_GNUPLOT
 
-Ninicio=128 #5072
-Nfinal=256 #5584
+Ninicio=5072
+Nfinal=5584
 Npaso=64
 
 echo "Exercise 2"
@@ -101,9 +101,9 @@ replot
 quit
 END_GNUPLOT
 
-Ninicio=32 #1742
-Nfinal=128 #2048
-Npaso=16 #32
+Ninicio=1792
+Nfinal=2048
+Npaso=32
 EX_3_Cache_png=mult_cache.png
 EX_3_Time_png=mult_time.png
 total1=0
@@ -160,4 +160,3 @@ plot "mult.dat" using 1:7 with lines lw 2 title "Write misses - Traspose multipl
 replot
 quit
 END_GNUPLOT
-
