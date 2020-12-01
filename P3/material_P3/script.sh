@@ -20,7 +20,7 @@ size2=0
 echo "Exercise 1"
 echo "Executing time ..."
 for i in $(seq $Ninicio $Npaso $Nfinal ); do
-    echo -e "SIZE $i / $Nfinal -- $(bc <<< "scale=5;($i/$Nfinal)*100")%"
+    echo -e "SIZE $i / $Nfinal"
     for n in $(seq 1 1 15); do
         size1=$(./slow $i | grep 'time' | awk '{print $3}')
         total1=$(bc <<< "scale=2;$total1+$size1")
