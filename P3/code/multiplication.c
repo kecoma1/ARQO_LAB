@@ -53,9 +53,9 @@ int main( int argc, char *argv[])
 	printf("Execution time: %f\n", ((fin.tv_sec*1000000+fin.tv_usec)-(ini.tv_sec*1000000+ini.tv_usec))*1.0/1000000.0);
 
 	/* Free memory */
-    free(input1);
-    free(input2);
-    free(output);
+    freeMatrix(input1);
+    freeMatrix(input2);
+    freeMatrix(output);
     input1 = NULL;
     input2 = NULL;
     output = NULL;
