@@ -35,11 +35,12 @@ int main(void)
 	/* Bloque de computo */
 	sum = 0;
 	
-    #pragma omp parallel for
-	for(k=0;k<M;k++)
-	{
-		sum = sum + A[k]*B[k];
-	}
+    #pragma omp parallel for 
+        for(k=0;k<M;k++) {
+            #pragma omp atomic
+	        sum = sum + A[k]*B[k];
+        }
+
 	/* Fin del computo */
 	gettimeofday(&fin,NULL);
 

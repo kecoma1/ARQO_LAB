@@ -15,8 +15,8 @@ int main(int argc, char *argv[])
 	if (argc == 2)
      		arg = atoi( argv[1] );	
         else
-        	arg = nproc;  
-        omp_set_num_threads(arg);
+        	arg = nproc;
+	omp_set_num_threads(arg);
 	nthr = omp_get_max_threads();
 	printf("Me han pedido que lance %d hilos\n", nthr);
 	

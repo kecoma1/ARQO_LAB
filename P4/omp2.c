@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	omp_set_num_threads(4);
 
 	printf("Inicio: a = %d,\t b = %d,\t c = %d\n", a, b, c);
-	printf("\t &a = %p,x\t &b = %p,\t &c = %p\n\n", &a, &b, &c);
+	printf("  \t &a = %p,x\t &b = %p,\t &c = %p\n\n", &a, &b, &c);
 	
 	#pragma omp parallel shared(b) private(tid,a) firstprivate(c)
 	{
