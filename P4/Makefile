@@ -4,7 +4,7 @@ FLAGS = -g -lgomp -lm -Wall -D_GNU_SOURCE -fopenmp
 
 .PHONY: clean all
 
-all: omp1 omp2 pescalar_serie pescalar_par1 pescalar_par2 pescalar_par3 edgeDetector clear
+all: clean omp1 omp2 pescalar_serie pescalar_par1 pescalar_par2 pescalar_par3 mul edgeDetector clear
 
 omp1: omp1.c
 	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
@@ -24,8 +24,20 @@ pescalar_par2: pescalar_par2.c arqo4.c
 pescalar_par3: pescalar_par3.c arqo4.c
 	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
 
+mul: 
+	gcc $(FLAGS) -c arqo3.c
+	gcc $(FLAGS) -c multiplication.c
+	gcc $(FLAGS) -o multiplication multiplication.o arqo3.o
+	gcc $(FLAGS) -c multiplication_par1.c
+	gcc $(FLAGS) -o multiplication_par1 multiplication_par1.o arqo3.o
+	gcc $(FLAGS) -c multiplication_par2.c
+	gcc $(FLAGS) -o multiplication_par2 multiplication_par2.o arqo3.o
+	gcc $(FLAGS) -c multiplication_par3.c
+	gcc $(FLAGS) -o multiplication_par3 multiplication_par3.o arqo3.o
+
+
 edgeDetector: edgeDetector.c stb_image_write.h stb_image.h
-	gcc $(FLAGS) -std=gnu99 $(LIB_DIR) -o $@ edgeDetector.c $(LIBS)
+	gcc $(FLAGS) -std=gnu99 $(LIB_DIR) -o $@ edgeDetector.c $(LIBS) -lm
 
 stb_image.h:
 	@echo "Los ficheros de cabecera de stb se deberían descarga automáticamente"
@@ -38,7 +50,7 @@ stb_image_write.h:
 	wget --no-check-certificate https://raw.githubusercontent.com/nothings/stb/master/stb_image_write.h
 
 clean:
-	rm -f *.o *~ omp1 omp2 pescalar_serie pescalar_par1 pescalar_par2 pescalar_par3 edgeDetector
+	rm -f *.o *~ omp1 omp2 pescalar_serie pescalar_par1 pescalar_par2 pescalar_par3 edgeDetector multiplication multiplication_par1
 	
 clear:
 	rm -f *.o *~

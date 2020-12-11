@@ -14,8 +14,7 @@ int main(void)
 	long long k=0;
 	struct timeval fin,ini;
 	double sum=0;
-     	
-       
+    
 	A = generateVectorOne(M);
 	B = generateVectorOne(M);
 	if ( !A || !B )
