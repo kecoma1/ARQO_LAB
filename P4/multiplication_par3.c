@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
 #include <sys/time.h>
 
 #include "arqo3.h"
@@ -16,9 +17,9 @@ int main( int argc, char *argv[])
 	printf("Word size: %ld bits\n",8*sizeof(tipo));
 
 	/* Check arguments */
-	if( argc!=2 )
+	if( argc!=3 )
 	{
-		printf("Error: %s <matrix size>\n", argv[0]);
+		printf("Error: %s <matrix size> <num_threads>\n", argv[0]);
 		return -1;
 	}
 
@@ -43,6 +44,7 @@ int main( int argc, char *argv[])
         input2 = NULL;
 		return -1;
 	}
+	omp_set_num_threads(atoi(argv[2]));
 	gettimeofday(&ini,NULL);
 
 	/* Main computation */
@@ -65,21 +67,21 @@ int main( int argc, char *argv[])
 
 void compute_multi(tipo **input1, tipo **input2, tipo **output, int n)
 {
-	tipo sum = 0, mul = 0;
-	int i, j, k;
+	tipo sum = 0;
+	int i=0, j=0, k=0;
 
     /* Traverse through the rows of matrix c */
+	#pragma omp parallel for firstprivate(j,k) reduction(+:sum)
     for (i = 0; i < n; i++) {
 		/* Traverse through the columns of matrix c */
         for (j = 0; j < n; j++) {
             /* Traverse through the columns and rows of matrixes a and b */
 			sum = 0;
-            for (k = 0; k < n; k++) {
-                mul = input1[i][k]*input2[k][j];
-                sum += mul;
-            }
+			for (k = 0; k < n; k++) {
+				sum += input1[i][k]*input2[k][j];
+			}
 			/* Store the value of the sum in the matrix c */
-            output[i][j] = sum;
+			output[i][j] = sum;
         }
     }
 }

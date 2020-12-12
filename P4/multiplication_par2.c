@@ -68,7 +68,7 @@ int main( int argc, char *argv[])
 void compute_multi(tipo **input1, tipo **input2, tipo **output, int n)
 {
 	tipo sum = 0;
-	int i, j, k;
+	int i=0, j=0, k=0;
 
     /* Traverse through the rows of matrix c */
     for (i = 0; i < n; i++) {
