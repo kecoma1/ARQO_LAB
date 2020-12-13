@@ -4,7 +4,7 @@ FLAGS = -g -lgomp -lm -Wall -D_GNU_SOURCE -fopenmp
 
 .PHONY: clean all
 
-all: clean omp1 omp2 pescalar_serie pescalar_par1 pescalar_par2 pescalar_par3 mul edgeDetector clear
+all: clean omp1 omp2 pescalar_serie pescalar_par1 pescalar_par2 pescalar_par3 mul pi edgeDetector clear
 
 omp1: omp1.c
 	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
@@ -35,6 +35,23 @@ mul:
 	gcc $(FLAGS) -c multiplication_par3.c
 	gcc $(FLAGS) -o multiplication_par3 multiplication_par3.o arqo3.o
 
+pi:
+	gcc $(FLAGS) -c pi_serie.c
+	gcc $(FLAGS) -o pi_serie pi_serie.o
+	gcc $(FLAGS) -c pi_par1.c
+	gcc $(FLAGS) -o pi_par1 pi_par1.o
+	gcc $(FLAGS) -c pi_par2.c
+	gcc $(FLAGS) -o pi_par2 pi_par2.o
+	gcc $(FLAGS) -c pi_par3.c
+	gcc $(FLAGS) -o pi_par3 pi_par3.o
+	gcc $(FLAGS) -c pi_par4.c
+	gcc $(FLAGS) -o pi_par4 pi_par4.o
+	gcc $(FLAGS) -c pi_par5.c
+	gcc $(FLAGS) -o pi_par5 pi_par5.o
+	gcc $(FLAGS) -c pi_par6.c
+	gcc $(FLAGS) -o pi_par6 pi_par6.o
+	gcc $(FLAGS) -c pi_par7.c
+	gcc $(FLAGS) -o pi_par7 pi_par7.o
 
 edgeDetector: edgeDetector.c stb_image_write.h stb_image.h
 	gcc $(FLAGS) -std=gnu99 $(LIB_DIR) -o $@ edgeDetector.c $(LIBS) -lm
@@ -50,7 +67,7 @@ stb_image_write.h:
 	wget --no-check-certificate https://raw.githubusercontent.com/nothings/stb/master/stb_image_write.h
 
 clean:
-	rm -f *.o *~ omp1 omp2 pescalar_serie pescalar_par1 pescalar_par2 pescalar_par3 edgeDetector multiplication multiplication_par1 multiplication_par2 multiplication_par3
+	rm -f *.o *~ omp1 omp2 pescalar_serie pescalar_par1 pescalar_par2 pescalar_par3 edgeDetector multiplication multiplication_par1 multiplication_par2 multiplication_par3 pi_serie pi_par1 pi_par2 pi_par3 pi_par4 pi_par5 pi_par6 pi_par7
 	
 clear:
 	rm -f *.o *~
