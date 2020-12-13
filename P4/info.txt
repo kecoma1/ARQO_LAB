@@ -43,3 +43,26 @@ EJ 2:
     No it is not, depending on the size of the task we may need a number x of threads to make the performance optimal, otherwise, the computation will be worse.
     ----Generar charts y responder ultima pregunta 2.5
     
+EJ 4:
+    4.1. 100000000 rectangles
+    4.2. In pi_par4 there is a variable called "priv_sum", this is a local static variable created inside the pragma zone which is used in the loop and then the value is stored in the allocated memory. 
+    In pi_par1 we use in the loop the variable which had allocated memory before creating the paralel zone, so managing concurrence makes the version 1 slower.
+    Although we allocate memory for the number of threads, the variable is consider unique, therefore it cannot be accesed at the same time.
+    4.3. Yes there are differences, the version 4 is faster than the version 1. This is due to the way the sumation is done. In the version 1 we use a common variable for all threads in each iteration of the loop, but in the version 4 we use a variable created inside the pragma zone, version only updates the value of that varaible when the loop is finished (once per thread). 
+    4.4. The performance of the version 3 is faster. Version 3 checks the size of each block of the cache and then allocates memory for a varaible, so all the threads access at one block of the cache.
+    4.5.
+        1 0.395503
+        2 0.343166
+        3 0.307214
+        4 0.324928
+        5 0.327565
+        6 0.349168
+        7 0.242553
+        8 0.222530
+        9 0.271752
+        10 0.192711
+        12 0.283687
+        It looks like the performance is better when the numbers are between 7-10 (both values included). 
+    4.6. In the version 5 the variable used for the sumations is a copy of the one of the caller thread, in the version 4 each thread creates their unique static variable for the sumation and then update their part of the variable (with part we mean sum[0...]). 
+    In the version 5 the critical zone is in the update part of the variable, this makes that this part cannot be done at the same time by different threads, but in the version 4 the variable is divided in the number of threads used, so each thread access to his part and updates the variable, without needing to check concurence. 
+    4.7. The version 7 is the less efficient because, first it paralelizes the algorithm and creates some variables, after this it paralelizes the for loop so threads are able to work without concurence problems. In the version 6 with the "reduction" we paralelizes just the sumation of the loop, making the paralelization way more efficient.
