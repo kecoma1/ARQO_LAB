@@ -159,7 +159,7 @@ int main(int nargs, char **argv)
             for (int j = 0; j < height; j++)
             {
                 getRGB(rgb_image, width, height, 4, i, j, &r, &g, &b);
-                grey_image[j * width + i] = (int)(0.2989 * r + 0.5870 * g + 0.1140 * b);
+                grey_image[i * width + j] = (int)(0.2989 * r + 0.5870 * g + 0.1140 * b);
             }
         }
         #ifdef WRITEONTHEGO

@@ -56,3 +56,8 @@ for ((N = 512+3 ; N <= 1024+512+3 ; N += 64)); do
     echo -e "multiplication_par3 2000 $N done"    
     echo
 done
+
+# Drawing the chart
+gnuplot << END_GNUPLOT
+call "3_chart.plot"
+END_GNUPLOT
