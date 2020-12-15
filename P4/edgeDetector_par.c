@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <math.h>
+#include <omp.h>
 #include <sys/time.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -18,15 +19,17 @@ float* gaussian_kernel(int ksize, double sigma) {
     double sum = 0;
     int i, j;
     
+    #pragma omp parallel for reduction(+:sum)
     for (j = 0; j < ksize; j++) {
         for (i = 0; i < ksize; i++) {
             double x = i - (ksize - 1) / 2.0;
             double y = j - (ksize - 1) / 2.0;
-            gauss[i + ksize*j] = (GAUSSIAN_K * exp(((pow(x, 2) + pow(y, 2)) / ((2 * pow(sigma, 2)))) * (-1)));
-            sum += gauss[i + ksize*j];
+            gauss[i*ksize + j] = (GAUSSIAN_K * exp(((pow(x, 2) + pow(y, 2)) / ((2 * pow(sigma, 2)))) * (-1)));
+            sum += gauss[i*ksize + j];
         }
     }
 
+    #pragma omp parallel for 
     for (i = 0; i < ksize; i++) {
         for (j = 0; j < ksize; j++) {
             gauss[i + ksize*j] /= sum;
@@ -52,7 +55,7 @@ int comparate(const void *a, const void *b)
 
 int main(int nargs, char **argv)
 {
-    int width, height, nchannels, nproc, i=0, j=0;
+    int width, height, nchannels, j = 0, i = 0;
     struct timeval fin,ini;
 
     if (nargs < 3)
@@ -65,7 +68,7 @@ int main(int nargs, char **argv)
 
     // For each image
     // Bucle 0
-    #pragma omp parallel for private(i, j) if(nargs>3)
+    #pragma omp parallel for private(i,j)
     for (int file_i = 2; file_i < nargs; file_i++)
     {
         printf("[info] Processing %s\n", argv[file_i]);
@@ -156,15 +159,16 @@ int main(int nargs, char **argv)
             continue;
         }
 
+        gettimeofday(&ini,NULL);
         // RGB to grey scale
         int r, g, b;
-        #pragma omp parallel private(j)
-        for (i = 0; i < width; i++)
+        #pragma omp parallel for
+        for (i = 0; i < height; i++)
         {
-            for (j = 0; j < height; j++)
+            for (j = 0; j < width; j++)
             {
-                getRGB(rgb_image, width, height, 4, i, j, &r, &g, &b);
-                grey_image[j * width + i] = (int)(0.2989 * r + 0.5870 * g + 0.1140 * b);
+                getRGB(rgb_image, width, height, 4, j, i, &r, &g, &b);
+                grey_image[i * width + j] = (int)(0.2989 * r + 0.5870 * g + 0.1140 * b);
             }
         }
         #ifdef WRITEONTHEGO
@@ -173,11 +177,10 @@ int main(int nargs, char **argv)
         #endif
 
         // Sobel edge detection
-#define PIXEL_GREY(x, y) (grey_image[(x) + (y)*width])
-        #pragma omp parallel for private(j)
-        for (i = 1; i < width - 1; i++)
+#define PIXEL_GREY(x, y) (grey_image[(x)*width + (y)])
+        for (i = 1; i < height - 1; i++)
         {
-            for (j = 1; j < height - 1; j++)
+            for (j = 1; j < width - 1; j++)
             {
                 int x = i - 1;
                 int y = j - 1;
@@ -186,7 +189,7 @@ int main(int nargs, char **argv)
                 float b = (PIXEL_GREY(i - 1, j - 1) + PIXEL_GREY(i, j - 1) * 2 + PIXEL_GREY(i + 1, j - 1) -
                            (PIXEL_GREY(i - 1, j + 1) + PIXEL_GREY(i - 1, j + 1) * 2 + PIXEL_GREY(i - 1, j + 1)));
 
-                edges[x + y * width_edges] = sqrt(a * a + b * b);
+                edges[x*width_edges + y] = sqrt(a * a + b * b);
             }
         }
         
@@ -196,31 +199,31 @@ int main(int nargs, char **argv)
         #endif
 
         // Denoising
-#define PIXEL_EDGES(x, y) (edges[(x) + (y)*width_edges]);
+#define PIXEL_EDGES(x, y) (edges[(x)*height_edges + (y)]);
 
-        int x = 0, y = 0, k = 0, p1 = 0, p2 = 0;
+        int x = 0, y = 0, k = 0;
         // Use salt&pepper filter
         if (TYPE_FILTER == MEDIAN)
         {
             printf("[info] Using median denoising...\n");
-            #pragma omp parallel for private(j, p1, p2)
             for (i = radius; i < width_edges - radius; i++)
             {
+                
                 for (j = radius; j < height_edges - radius; j++)
                 {
-                    y = j - radius;
                     x = i - radius;
+                    y = j - radius;
                     k = 0;
 
-                    for (p1 = i - radius; p1 <= i + radius; p1++)
+                    for (int p1 = i - radius; p1 <= i + radius; p1++)
                     {
-                        for (p2 = j - radius; p2 <= j + radius; p2++)
+                        for (int p2 = j - radius; p2 <= j + radius; p2++)
                         {
                             array[k++] = PIXEL_EDGES(p1, p2);
                         }
                     }
                     qsort(array, (2 * radius + 1) * (2 * radius + 1), 1, comparate);
-                    edges_denoised[x + y * width_denoised] = array[(2 * radius + 1) * (2 * radius + 1) / 2]>50?255:0;
+                    edges_denoised[x * width_denoised + y] = array[(2 * radius + 1) * (2 * radius + 1) / 2]>50?255:0;
                 }
             }
         // More classic gaussian filter
@@ -228,8 +231,6 @@ int main(int nargs, char **argv)
             printf("[info] Using gaussian denoising...\n");
             float* kernel = gaussian_kernel(2*radius+1, 1.0);
             double sum = 0;
-            int p1 = 0, p2 = 0;
-            #pragma omp parallel for private(j,p1,p2)
             for (i = radius; i < width_edges - radius; i++)
             {
                 for (j = radius; j < height_edges - radius; j++)
@@ -237,16 +238,16 @@ int main(int nargs, char **argv)
                     x = i - radius;
                     y = j - radius;
                     sum = 0;
-                    for (p1 = 0; p1 <= 2 * radius; p1++)
+                    for (int p1 = 0; p1 <= 2 * radius; p1++)
                     {
-                        for (p2 = 0; p2 <= 2 * radius; p2++)
+                        for (int p2 = 0; p2 <= 2 * radius; p2++)
                         {
                             if (kernel[p1+p2*(2*radius+1)]>1) 
                                 printf("%f, %d, %d\n", kernel[p1+p2*(2*radius+1)], p1, p2);
                             sum += kernel[p1+p2*(2*radius+1)] * PIXEL_EDGES(i-radius+p1, j-radius+p2);
                         }
                     }
-                    edges_denoised[x + y * width_denoised] = sum>50?255:0;
+                    edges_denoised[x * width_denoised + y ] = sum>50?255:0;
                 }
             }
         }
@@ -258,6 +259,7 @@ int main(int nargs, char **argv)
         free(edges);
         #endif
         gettimeofday(&fin,NULL);
+	    printf("Tiempo: %f\n", ((fin.tv_sec*1000000+fin.tv_usec)-(ini.tv_sec*1000000+ini.tv_usec))*1.0/1000000.0);
 
         #ifndef WRITEONTHEGO
         stbi_write_jpg(grey_image_filename, width, height, 1, grey_image, 10);
@@ -272,5 +274,4 @@ int main(int nargs, char **argv)
         free(grad_image_filename);
         free(denoised_image_filename);
     }
-	printf("Tiempo: %f\n", ((fin.tv_sec*1000000+fin.tv_usec)-(ini.tv_sec*1000000+ini.tv_usec))*1.0/1000000.0);
 }
