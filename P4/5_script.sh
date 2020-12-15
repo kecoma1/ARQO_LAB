@@ -69,7 +69,7 @@ result=$(./edgeDetector_par 2 img/SD.jpg | grep 'Tiempo' | awk '{print $2}')
 echo -e "SD\t$result" >> data/5/parallel1.log
 
 
-echo -e "Parallel - 1 thread"
+echo -e "Parallel - 4 thread"
 echo -e "\t8K"
 result=$(./edgeDetector_par 4 img/8k.jpg | grep 'Tiempo' | awk '{print $2}')
 echo -e "8k\t$result" >> data/5/parallel1.log
@@ -91,7 +91,7 @@ result=$(./edgeDetector_par 4 img/SD.jpg | grep 'Tiempo' | awk '{print $2}')
 echo -e "SD\t$result" >> data/5/parallel1.log
 
 
-echo -e "Parallel - 1 thread"
+echo -e "Parallel - 8 thread"
 echo -e "\t8K"
 result=$(./edgeDetector_par 8 img/8k.jpg | grep 'Tiempo' | awk '{print $2}')
 echo -e "8k\t$result" >> data/5/parallel1.log
