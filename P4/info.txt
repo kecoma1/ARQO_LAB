@@ -80,7 +80,10 @@ EJ 5:
     5.1  It depends on how many image we sent, if there is just 1 image, it is not worth it.
         a. That the parallelization makes the performance be worse.
         b. If the images sent to parallelize are only 1, this is still inneficient, we need to parallelize the innner loops, but if we sent more images it will be better to parallelize it because each image takes a lot time. 
-    5.2
+    5.2 Yes there are, the ones which access the images pixels.
+        b. We swapped the loops, instead of going width and then height (columns) we go through height and then width (rows). The order is not correct for the same reason it was in the previous assignment, accessing the elements by columns means that the element we are looking for is not in any of the cache blocks.
+    5.5 
+
 
 
 
