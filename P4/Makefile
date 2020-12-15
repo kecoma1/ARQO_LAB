@@ -4,7 +4,19 @@ FLAGS = -g -lgomp -lm -Wall -D_GNU_SOURCE -fopenmp
 
 .PHONY: clean all
 
-all: clean mul pi edgeDetector_serie edgeDetector_par clear
+all: clean pescalar_serie pescalar_par3 mul pi edgeDetector_serie edgeDetector_par clear
+
+pescalar_serie: pescalar_serie.c arqo4.c
+	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
+
+pescalar_par1: pescalar_par1.c arqo4.c
+	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
+
+pescalar_par2: pescalar_par2.c arqo4.c
+	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
+	
+pescalar_par3: pescalar_par3.c arqo4.c
+	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
 
 mul: 
 	gcc $(FLAGS) -c arqo3.c
