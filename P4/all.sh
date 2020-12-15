@@ -1,3 +1,10 @@
+#!/bin/bash
+
+mkdir data
+mkdir data/2_5_threads
+mkdir data/3
+mkdir data/5
+
 time1=0
 total1=0
 time2=0
