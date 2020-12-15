@@ -52,16 +52,24 @@ int comparate(const void *a, const void *b)
 
 int main(int nargs, char **argv)
 {
-    int width, height, nchannels;
+    int width, height, nchannels, nproc;
     struct timeval fin,ini;
 
-    if (nargs < 2)
+    nproc = omp_get_num_procs();
+
+    if (nargs < 3)
     {
-        printf("Usage: %s <image1> [<image2> ...]\n", argv[0]);
+        printf("Usage: %s <num_threads> <image1> [<image2> ...]\n", argv[0]);
+        printf("It will only use parallelism if the number of images > %d cores\n",nproc);
+        return -1;
     }
+
+    omp_set_num_threads(atoi(argv[1]));
+
     // For each image
     // Bucle 0
-    for (int file_i = 1; file_i < nargs; file_i++)
+    #pragma omp parallel for if ((nargs-2)>=nproc)
+    for (int file_i = 2; file_i < nargs; file_i++)
     {
         printf("[info] Processing %s\n", argv[file_i]);
         /****** Reading file ******/
@@ -159,7 +167,7 @@ int main(int nargs, char **argv)
             for (int j = 0; j < height; j++)
             {
                 getRGB(rgb_image, width, height, 4, i, j, &r, &g, &b);
-                grey_image[i * width + j] = (int)(0.2989 * r + 0.5870 * g + 0.1140 * b);
+                grey_image[j * width + i] = (int)(0.2989 * r + 0.5870 * g + 0.1140 * b);
             }
         }
         #ifdef WRITEONTHEGO
@@ -251,7 +259,6 @@ int main(int nargs, char **argv)
         #endif
         gettimeofday(&fin,NULL);
 
-	    printf("Tiempo: %f\n", ((fin.tv_sec*1000000+fin.tv_usec)-(ini.tv_sec*1000000+ini.tv_usec))*1.0/1000000.0);
         #ifndef WRITEONTHEGO
         stbi_write_jpg(grey_image_filename, width, height, 1, grey_image, 10);
         stbi_write_jpg(grad_image_filename, width_edges, height_edges, 1, edges, 10);
@@ -265,4 +272,5 @@ int main(int nargs, char **argv)
         free(grad_image_filename);
         free(denoised_image_filename);
     }
+	printf("Tiempo: %f\n", ((fin.tv_sec*1000000+fin.tv_usec)-(ini.tv_sec*1000000+ini.tv_usec))*1.0/1000000.0);
 }

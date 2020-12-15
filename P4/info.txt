@@ -51,7 +51,7 @@ EJ 3:
 
     3.2. This depends in the algorithm, generally we would prefer the coarse-grained but depending on the loop the fine-grained may be better, but generally the coarse-grained is better.
     
-    3.3. 
+    3.3. From somewhere between 2000, the growth becomes linear.
 EJ 4:
     4.1. 100000000 rectangles
     4.2. In pi_par4 there is a variable called "priv_sum", this is a local static variable created inside the pragma zone which is used in the loop and then the value is stored in the allocated memory. 
@@ -80,6 +80,7 @@ EJ 5:
     5.1  It depends on how many image we sent, if there are less images than cores, it is not worth it.
         a. That the parallelization makes the performance be worse.
         b. If the images sent to parallelize are only 1, this is still inneficient, we need to parallelize the innner loops, but if we sent more images it will be better to parallelize it because each image takes a lot time. 
+    5.2 Yes there are, in lines 162: grey_image[j * width + i] --> grey_image[i * height + j]
 
 
 
