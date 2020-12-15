@@ -77,10 +77,10 @@ EJ 4:
     4.7. The version 7 is the less efficient because, first it paralelizes the algorithm and creates some variables, after this it paralelizes the for loop so threads are able to work without concurence problems. In the version 6 with the "reduction" we paralelizes just the sumation of the loop, making the paralelization way more efficient.
 
 EJ 5:
-    5.1  It depends on how many image we sent, if there are less images than cores, it is not worth it.
+    5.1  It depends on how many image we sent, if there is just 1 image, it is not worth it.
         a. That the parallelization makes the performance be worse.
         b. If the images sent to parallelize are only 1, this is still inneficient, we need to parallelize the innner loops, but if we sent more images it will be better to parallelize it because each image takes a lot time. 
-    5.2 Yes there are, in lines 162: grey_image[j * width + i] --> grey_image[i * height + j]
+    5.2
 
 
 

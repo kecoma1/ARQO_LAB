@@ -52,15 +52,12 @@ int comparate(const void *a, const void *b)
 
 int main(int nargs, char **argv)
 {
-    int width, height, nchannels, nproc;
+    int width, height, nchannels, nproc, i=0, j=0;
     struct timeval fin,ini;
-
-    nproc = omp_get_num_procs();
 
     if (nargs < 3)
     {
         printf("Usage: %s <num_threads> <image1> [<image2> ...]\n", argv[0]);
-        printf("It will only use parallelism if the number of images > %d cores\n",nproc);
         return -1;
     }
 
@@ -68,7 +65,7 @@ int main(int nargs, char **argv)
 
     // For each image
     // Bucle 0
-    #pragma omp parallel for if ((nargs-2)>=nproc)
+    #pragma omp parallel for private(i, j) if(nargs>3)
     for (int file_i = 2; file_i < nargs; file_i++)
     {
         printf("[info] Processing %s\n", argv[file_i]);
@@ -116,7 +113,7 @@ int main(int nargs, char **argv)
         }
 
         // - Filenames 
-        for (int i = strlen(argv[file_i]) - 1; i >= 0; i--)
+        for (i = strlen(argv[file_i]) - 1; i >= 0; i--)
         {
             if (argv[file_i][i] == '.')
             {
@@ -159,12 +156,12 @@ int main(int nargs, char **argv)
             continue;
         }
 
-        gettimeofday(&ini,NULL);
         // RGB to grey scale
         int r, g, b;
-        for (int i = 0; i < width; i++)
+        #pragma omp parallel private(j)
+        for (i = 0; i < width; i++)
         {
-            for (int j = 0; j < height; j++)
+            for (j = 0; j < height; j++)
             {
                 getRGB(rgb_image, width, height, 4, i, j, &r, &g, &b);
                 grey_image[j * width + i] = (int)(0.2989 * r + 0.5870 * g + 0.1140 * b);
@@ -177,9 +174,10 @@ int main(int nargs, char **argv)
 
         // Sobel edge detection
 #define PIXEL_GREY(x, y) (grey_image[(x) + (y)*width])
-        for (int i = 1; i < width - 1; i++)
+        #pragma omp parallel for private(j)
+        for (i = 1; i < width - 1; i++)
         {
-            for (int j = 1; j < height - 1; j++)
+            for (j = 1; j < height - 1; j++)
             {
                 int x = i - 1;
                 int y = j - 1;
@@ -200,23 +198,23 @@ int main(int nargs, char **argv)
         // Denoising
 #define PIXEL_EDGES(x, y) (edges[(x) + (y)*width_edges]);
 
-        int x = 0, y = 0, k = 0;
+        int x = 0, y = 0, k = 0, p1 = 0, p2 = 0;
         // Use salt&pepper filter
         if (TYPE_FILTER == MEDIAN)
         {
             printf("[info] Using median denoising...\n");
-            for (int i = radius; i < width_edges - radius; i++)
+            #pragma omp parallel for private(j, p1, p2)
+            for (i = radius; i < width_edges - radius; i++)
             {
-                
-                for (int j = radius; j < height_edges - radius; j++)
+                for (j = radius; j < height_edges - radius; j++)
                 {
                     y = j - radius;
                     x = i - radius;
                     k = 0;
 
-                    for (int p1 = i - radius; p1 <= i + radius; p1++)
+                    for (p1 = i - radius; p1 <= i + radius; p1++)
                     {
-                        for (int p2 = j - radius; p2 <= j + radius; p2++)
+                        for (p2 = j - radius; p2 <= j + radius; p2++)
                         {
                             array[k++] = PIXEL_EDGES(p1, p2);
                         }
@@ -230,16 +228,18 @@ int main(int nargs, char **argv)
             printf("[info] Using gaussian denoising...\n");
             float* kernel = gaussian_kernel(2*radius+1, 1.0);
             double sum = 0;
-            for (int i = radius; i < width_edges - radius; i++)
+            int p1 = 0, p2 = 0;
+            #pragma omp parallel for private(j,p1,p2)
+            for (i = radius; i < width_edges - radius; i++)
             {
-                for (int j = radius; j < height_edges - radius; j++)
+                for (j = radius; j < height_edges - radius; j++)
                 {
                     x = i - radius;
                     y = j - radius;
                     sum = 0;
-                    for (int p1 = 0; p1 <= 2 * radius; p1++)
+                    for (p1 = 0; p1 <= 2 * radius; p1++)
                     {
-                        for (int p2 = 0; p2 <= 2 * radius; p2++)
+                        for (p2 = 0; p2 <= 2 * radius; p2++)
                         {
                             if (kernel[p1+p2*(2*radius+1)]>1) 
                                 printf("%f, %d, %d\n", kernel[p1+p2*(2*radius+1)], p1, p2);
