@@ -17,9 +17,7 @@ for ((N = 4000000 ; N <= 348000000 ; N += 16000000)); do
         total2=$(bc <<< "scale=2;$total2/4")
         echo -e "$N $total2" >> performance_Threads$i.log
     done
-
     total2=$(bc <<< "scale=6;$total2/(2*$numcores)")
-
     echo -e "$N\t$time1\t$total2" >> serial_vs_par.log
 done
 result=0
@@ -159,4 +157,3 @@ call "3_chart.plot"
 call "2_5_plot_serie_vs_parallel.plot"
 call "2_5_plot_threads_performance.plot"
 END_GNUPLOT
-
