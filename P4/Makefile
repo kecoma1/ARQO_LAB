@@ -4,7 +4,13 @@ FLAGS = -g -lgomp -lm -Wall -D_GNU_SOURCE -fopenmp
 
 .PHONY: clean all
 
-all: clean pescalar_serie pescalar_par3 mul pi edgeDetector_serie edgeDetector_par clear
+all: clean omp1 omp2 pescalar_serie pescalar_par1 pescalar_par2 pescalar_par3 mul pi edgeDetector_serie edgeDetector_par clear
+
+omp1: omp1.c
+	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
+
+omp2: omp2.c
+	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
 
 pescalar_serie: pescalar_serie.c arqo4.c
 	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
@@ -64,7 +70,7 @@ stb_image_write.h:
 	wget --no-check-certificate https://raw.githubusercontent.com/nothings/stb/master/stb_image_write.h
 
 clean:
-	rm -f *.o *~ omp1 omp2 pescalar_serie pescalar_par1 pescalar_par2 pescalar_par3 edgeDetector_serie edgeDetector_par multiplication multiplication_par1 multiplication_par2 multiplication_par3 pi_serie pi_par1 pi_par2 pi_par3 pi_par4 pi_par5 pi_par6 pi_par7
+	rm -f *.o *~ img/*_* data/*.log data/5/*.log data/3/*.log omp1 omp2 pescalar_serie pescalar_par1 pescalar_par2 pescalar_par3 edgeDetector_serie edgeDetector_par multiplication multiplication_par1 multiplication_par2 multiplication_par3 pi_serie pi_par1 pi_par2 pi_par3 pi_par4 pi_par5 pi_par6 pi_par7
 	
 clear:
 	rm -f *.o *~
