@@ -1,4 +1,5 @@
 #!/bin/bash
+cd /home/arqo61/cluster
 time1=0
 total1=0
 time2=0
