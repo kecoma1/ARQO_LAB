@@ -206,7 +206,7 @@ int main(int nargs, char **argv)
         if (TYPE_FILTER == MEDIAN)
         {
             printf("[info] Using median denoising...\n");
-            #pragma omp parallel for private(p1,p2)
+            #pragma omp parallel for private(p1,p2,i)
             for (j = radius; j < height_edges - radius; j++)
             {
                 
@@ -232,7 +232,7 @@ int main(int nargs, char **argv)
             printf("[info] Using gaussian denoising...\n");
             float* kernel = gaussian_kernel(2*radius+1, 1.0);
             double sum = 0;
-            #pragma omp parallel for private(p1,p2) reduction(+:sum)
+            #pragma omp parallel for private(p1,p2,i) reduction(+:sum)
             for (j = radius; j < height_edges - radius; j++)
             {
                 for (i = radius; i < width_edges - radius; i++)
