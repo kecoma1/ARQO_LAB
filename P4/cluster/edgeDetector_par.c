@@ -67,7 +67,7 @@ int main(int nargs, char **argv)
 
     // For each image
     // Bucle 0
-    #pragma omp parallel for private(i, j)
+    #pragma omp parallel for private(i, j) if (nargs > 3)
     for (int file_i = 2; file_i < nargs; file_i++)
     {
         printf("[info] Processing %s\n", argv[file_i]);
@@ -161,7 +161,7 @@ int main(int nargs, char **argv)
         gettimeofday(&ini,NULL);
         // RGB to grey scale
         int r, g, b;
-        #pragma omp parallel for
+        #pragma omp parallel for private(i)
         for (j = 0; j < height; j++)
         {
             for (i = 0; i < width; i++)
@@ -177,7 +177,7 @@ int main(int nargs, char **argv)
 
         // Sobel edge detection
 #define PIXEL_GREY(x, y) (grey_image[(x) + (y)*width])
-        #pragma omp parallel for
+        #pragma omp parallel for private(i)
         for (j = 1; j < height - 1; j++)
         {
             for (i = 1; i < width - 1; i++)
@@ -206,7 +206,7 @@ int main(int nargs, char **argv)
         if (TYPE_FILTER == MEDIAN)
         {
             printf("[info] Using median denoising...\n");
-            #pragma omp parallel for private(p1,p2)
+            #pragma omp parallel for private(p1,p2,i)
             for (j = radius; j < height_edges - radius; j++)
             {
                 
@@ -232,7 +232,7 @@ int main(int nargs, char **argv)
             printf("[info] Using gaussian denoising...\n");
             float* kernel = gaussian_kernel(2*radius+1, 1.0);
             double sum = 0;
-            #pragma omp parallel for private(p1,p2) reduction(+:sum)
+            #pragma omp parallel for private(p1,p2,i) reduction(+:sum)
             for (j = radius; j < height_edges - radius; j++)
             {
                 for (i = radius; i < width_edges - radius; i++)
