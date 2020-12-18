@@ -29,7 +29,7 @@ float* gaussian_kernel(int ksize, double sigma) {
         }
     }
 
-    #pragma omp parallel for private(i)
+    #pragma omp parallel for private(j)
     for (i = 0; i < ksize; i++) {
         for (j = 0; j < ksize; j++) {
             gauss[i + ksize*j] /= sum;
