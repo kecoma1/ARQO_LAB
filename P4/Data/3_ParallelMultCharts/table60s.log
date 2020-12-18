@@ -1,0 +1,13 @@
+serie   1       130.094616
+P-loop1 1-thread        130.862567
+P-loop2 1-thread        120.777636
+P-loop3 1-thread        122.531393
+P-loop1 2-thread        84.587017
+P-loop2 2-thread        72.260574
+P-loop3 2-thread        73.481748
+P-loop1 3-thread        60.805688
+P-loop2 3-thread        49.018568
+P-loop3 3-thread        48.041028
+P-loop1 4-thread        49.218190
+P-loop2 4-thread        36.806443
+P-loop3 4-thread        36.824258
